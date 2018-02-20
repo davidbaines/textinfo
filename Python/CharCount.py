@@ -8,10 +8,13 @@ parser.add_argument("-out" ,"--output", help="Specify the filename for the repor
 args = parser.parse_args()
 
 char_count = Counter()
-
-with io.open(args.input, 'r', encoding='utf-8') as infile:
-	for line in infile:
-		char_count.update(line)
+if not args.input:
+	print("Use: CharCount -in <inputfile>")
+	exit()
+else:	
+	with io.open(args.input, 'r', encoding='utf-8') as infile:
+		for line in infile:
+			char_count.update(line)
 
 header_string = "{0:>10s} | {1:<s} | {2:}"
 row_string = "{0:>10d} | {1:<s} | {2:}"
@@ -27,4 +30,13 @@ for character,count in char_count.most_common():
 	except:
 		name = ""
 	print(row_string.format(count,character, name))
-	
+
+if args.output:
+	with open(args.output, 'w', encoding='utf-8') as outfile:
+		for character,count in char_count.most_common():
+			try:
+				name = unicodedata.name(character)
+			except:
+				name = ""
+			outfile.write(row_string.format(count,character, name))
+			outfile.write("\n")
