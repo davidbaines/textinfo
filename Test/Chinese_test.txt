@@ -1,0 +1,9 @@
+From https://ctext.org/font-test-page
+Character type  Characters
+Traditional Chinese  義、禮、說、選
+Simplified Chinese  义、礼、说、选
+CJK Extension A  㡛、㬐、㖧、䵍
+CJK Extension B  𣚣、䶅、𪘆、𦞕
+CJK Extension C  𪢨、𪪖、𫔺、𫜴
+CJK Extension D  𫝀、𫞂、𫝻、𫠝
+CJK Extension E  𫠫、𬚚、𬳕、𬺡
