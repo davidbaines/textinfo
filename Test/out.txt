@@ -1,0 +1,331 @@
+
+Sorted by  Freq.
+
+ Freq. | Char. | Unicode name                       | Cat.| Script         |
+     1 | F     | LATIN CAPITAL LETTER F             | L   | Latin          |
+     1 | :     | COLON                              | Po  | Common         |
+     1 | .     | FULL STOP                          | Po  | Common         |
+     1 | y     | LATIN SMALL LETTER Y               | L   | Latin          |
+     1 | T     | LATIN CAPITAL LETTER T             | L   | Latin          |
+     1 | 義    | CJK UNIFIED IDEOGRAPH-7FA9         | Lo  | Han            |
+     1 | 禮    | CJK UNIFIED IDEOGRAPH-79AE         | Lo  | Han            |
+     1 | 說    | CJK UNIFIED IDEOGRAPH-8AAA         | Lo  | Han            |
+     1 | 選    | CJK UNIFIED IDEOGRAPH-9078         | Lo  | Han            |
+     1 | S     | LATIN CAPITAL LETTER S             | L   | Latin          |
+     1 | 义    | CJK UNIFIED IDEOGRAPH-4E49         | Lo  | Han            |
+     1 | 礼    | CJK UNIFIED IDEOGRAPH-793C         | Lo  | Han            |
+     1 | 说    | CJK UNIFIED IDEOGRAPH-8BF4         | Lo  | Han            |
+     1 | 选    | CJK UNIFIED IDEOGRAPH-9009         | Lo  | Han            |
+     1 | A     | LATIN CAPITAL LETTER A             | L   | Latin          |
+     1 | 㡛    | CJK UNIFIED IDEOGRAPH-385B         | Lo  | Han            |
+     1 | 㬐    | CJK UNIFIED IDEOGRAPH-3B10         | Lo  | Han            |
+     1 | 㖧    | CJK UNIFIED IDEOGRAPH-35A7         | Lo  | Han            |
+     1 | 䵍    | CJK UNIFIED IDEOGRAPH-4D4D         | Lo  | Han            |
+     1 | B     | LATIN CAPITAL LETTER B             | L   | Latin          |
+     1 | 𣚣    | CJK UNIFIED IDEOGRAPH-236A3        | Lo  | Han            |
+     1 | 䶅    | CJK UNIFIED IDEOGRAPH-4D85         | Lo  | Han            |
+     1 | 𪘆    | CJK UNIFIED IDEOGRAPH-2A606        | Lo  | Han            |
+     1 | 𦞕    | CJK UNIFIED IDEOGRAPH-26795        | Lo  | Han            |
+     1 | 𪢨    | CJK UNIFIED IDEOGRAPH-2A8A8        | Lo  | Han            |
+     1 | 𪪖    | CJK UNIFIED IDEOGRAPH-2AA96        | Lo  | Han            |
+     1 | 𫔺    | CJK UNIFIED IDEOGRAPH-2B53A        | Lo  | Han            |
+     1 | 𫜴    | CJK UNIFIED IDEOGRAPH-2B734        | Lo  | Han            |
+     1 | D     | LATIN CAPITAL LETTER D             | L   | Latin          |
+     1 | 𫝀    | CJK UNIFIED IDEOGRAPH-2B740        | Lo  | Han            |
+     1 | 𫞂    | CJK UNIFIED IDEOGRAPH-2B782        | Lo  | Han            |
+     1 | 𫝻    | CJK UNIFIED IDEOGRAPH-2B77B        | Lo  | Han            |
+     1 | 𫠝    | CJK UNIFIED IDEOGRAPH-2B81D        | Lo  | Han            |
+     1 | 𫠫    | CJK UNIFIED IDEOGRAPH-2B82B        | Zzzz| Unknown        |
+     1 | 𬚚    | CJK UNIFIED IDEOGRAPH-2C69A        | Zzzz| Unknown        |
+     1 | 𬳕    | CJK UNIFIED IDEOGRAPH-2CCD5        | Zzzz| Unknown        |
+     1 | 𬺡    | CJK UNIFIED IDEOGRAPH-2CEA1        | Zzzz| Unknown        |
+     2 | m     | LATIN SMALL LETTER M               | L   | Latin          |
+     2 | g     | LATIN SMALL LETTER G               | L   | Latin          |
+     2 | f     | LATIN SMALL LETTER F               | L   | Latin          |
+     2 | -     | HYPHEN-MINUS                       | Pd  | Common         |
+     2 | d     | LATIN SMALL LETTER D               | L   | Latin          |
+     2 | l     | LATIN SMALL LETTER L               | L   | Latin          |
+     3 | /     | SOLIDUS                            | Po  | Common         |
+     3 | c     | LATIN SMALL LETTER C               | L   | Latin          |
+     4 | p     | LATIN SMALL LETTER P               | L   | Latin          |
+     5 | h     | LATIN SMALL LETTER H               | L   | Latin          |
+     5 | J     | LATIN CAPITAL LETTER J             | L   | Latin          |
+     5 | K     | LATIN CAPITAL LETTER K             | L   | Latin          |
+     6 | x     | LATIN SMALL LETTER X               | L   | Latin          |
+     6 | E     | LATIN CAPITAL LETTER E             | L   | Latin          |
+     7 | r     | LATIN SMALL LETTER R               | L   | Latin          |
+     7 | a     | LATIN SMALL LETTER A               | L   | Latin          |
+     9 | o     | LATIN SMALL LETTER O               | L   | Latin          |
+    10 | s     | LATIN SMALL LETTER S               | L   | Latin          |
+    10 | C     | LATIN CAPITAL LETTER C             | L   | Latin          |
+    12 | i     | LATIN SMALL LETTER I               | L   | Latin          |
+    14 | n     | LATIN SMALL LETTER N               | L   | Latin          |
+    16 | t     | LATIN SMALL LETTER T               | L   | Latin          |
+    16 | e     | LATIN SMALL LETTER E               | L   | Latin          |
+    21 | 、    | IDEOGRAPHIC COMMA                  | Po  | Common         |
+    30 |       | SPACE                              | Zs  | Common         |
+
+Sorted by Char.
+
+ Freq. | Char. | Unicode name                       | Cat.| Script         |
+    30 |       | SPACE                              | Zs  | Common         |
+     2 | -     | HYPHEN-MINUS                       | Pd  | Common         |
+     1 | .     | FULL STOP                          | Po  | Common         |
+     3 | /     | SOLIDUS                            | Po  | Common         |
+     1 | :     | COLON                              | Po  | Common         |
+     1 | A     | LATIN CAPITAL LETTER A             | L   | Latin          |
+     1 | B     | LATIN CAPITAL LETTER B             | L   | Latin          |
+    10 | C     | LATIN CAPITAL LETTER C             | L   | Latin          |
+     1 | D     | LATIN CAPITAL LETTER D             | L   | Latin          |
+     6 | E     | LATIN CAPITAL LETTER E             | L   | Latin          |
+     1 | F     | LATIN CAPITAL LETTER F             | L   | Latin          |
+     5 | J     | LATIN CAPITAL LETTER J             | L   | Latin          |
+     5 | K     | LATIN CAPITAL LETTER K             | L   | Latin          |
+     1 | S     | LATIN CAPITAL LETTER S             | L   | Latin          |
+     1 | T     | LATIN CAPITAL LETTER T             | L   | Latin          |
+     7 | a     | LATIN SMALL LETTER A               | L   | Latin          |
+     3 | c     | LATIN SMALL LETTER C               | L   | Latin          |
+     2 | d     | LATIN SMALL LETTER D               | L   | Latin          |
+    16 | e     | LATIN SMALL LETTER E               | L   | Latin          |
+     2 | f     | LATIN SMALL LETTER F               | L   | Latin          |
+     2 | g     | LATIN SMALL LETTER G               | L   | Latin          |
+     5 | h     | LATIN SMALL LETTER H               | L   | Latin          |
+    12 | i     | LATIN SMALL LETTER I               | L   | Latin          |
+     2 | l     | LATIN SMALL LETTER L               | L   | Latin          |
+     2 | m     | LATIN SMALL LETTER M               | L   | Latin          |
+    14 | n     | LATIN SMALL LETTER N               | L   | Latin          |
+     9 | o     | LATIN SMALL LETTER O               | L   | Latin          |
+     4 | p     | LATIN SMALL LETTER P               | L   | Latin          |
+     7 | r     | LATIN SMALL LETTER R               | L   | Latin          |
+    10 | s     | LATIN SMALL LETTER S               | L   | Latin          |
+    16 | t     | LATIN SMALL LETTER T               | L   | Latin          |
+     6 | x     | LATIN SMALL LETTER X               | L   | Latin          |
+     1 | y     | LATIN SMALL LETTER Y               | L   | Latin          |
+    21 | 、    | IDEOGRAPHIC COMMA                  | Po  | Common         |
+     1 | 㖧    | CJK UNIFIED IDEOGRAPH-35A7         | Lo  | Han            |
+     1 | 㡛    | CJK UNIFIED IDEOGRAPH-385B         | Lo  | Han            |
+     1 | 㬐    | CJK UNIFIED IDEOGRAPH-3B10         | Lo  | Han            |
+     1 | 䵍    | CJK UNIFIED IDEOGRAPH-4D4D         | Lo  | Han            |
+     1 | 䶅    | CJK UNIFIED IDEOGRAPH-4D85         | Lo  | Han            |
+     1 | 义    | CJK UNIFIED IDEOGRAPH-4E49         | Lo  | Han            |
+     1 | 礼    | CJK UNIFIED IDEOGRAPH-793C         | Lo  | Han            |
+     1 | 禮    | CJK UNIFIED IDEOGRAPH-79AE         | Lo  | Han            |
+     1 | 義    | CJK UNIFIED IDEOGRAPH-7FA9         | Lo  | Han            |
+     1 | 說    | CJK UNIFIED IDEOGRAPH-8AAA         | Lo  | Han            |
+     1 | 说    | CJK UNIFIED IDEOGRAPH-8BF4         | Lo  | Han            |
+     1 | 选    | CJK UNIFIED IDEOGRAPH-9009         | Lo  | Han            |
+     1 | 選    | CJK UNIFIED IDEOGRAPH-9078         | Lo  | Han            |
+     1 | 𣚣    | CJK UNIFIED IDEOGRAPH-236A3        | Lo  | Han            |
+     1 | 𦞕    | CJK UNIFIED IDEOGRAPH-26795        | Lo  | Han            |
+     1 | 𪘆    | CJK UNIFIED IDEOGRAPH-2A606        | Lo  | Han            |
+     1 | 𪢨    | CJK UNIFIED IDEOGRAPH-2A8A8        | Lo  | Han            |
+     1 | 𪪖    | CJK UNIFIED IDEOGRAPH-2AA96        | Lo  | Han            |
+     1 | 𫔺    | CJK UNIFIED IDEOGRAPH-2B53A        | Lo  | Han            |
+     1 | 𫜴    | CJK UNIFIED IDEOGRAPH-2B734        | Lo  | Han            |
+     1 | 𫝀    | CJK UNIFIED IDEOGRAPH-2B740        | Lo  | Han            |
+     1 | 𫝻    | CJK UNIFIED IDEOGRAPH-2B77B        | Lo  | Han            |
+     1 | 𫞂    | CJK UNIFIED IDEOGRAPH-2B782        | Lo  | Han            |
+     1 | 𫠝    | CJK UNIFIED IDEOGRAPH-2B81D        | Lo  | Han            |
+     1 | 𫠫    | CJK UNIFIED IDEOGRAPH-2B82B        | Zzzz| Unknown        |
+     1 | 𬚚    | CJK UNIFIED IDEOGRAPH-2C69A        | Zzzz| Unknown        |
+     1 | 𬳕    | CJK UNIFIED IDEOGRAPH-2CCD5        | Zzzz| Unknown        |
+     1 | 𬺡    | CJK UNIFIED IDEOGRAPH-2CEA1        | Zzzz| Unknown        |
+
+Sorted by Unicode name
+
+ Freq. | Char. | Unicode name                       | Cat.| Script         |
+     1 | 𣚣    | CJK UNIFIED IDEOGRAPH-236A3        | Lo  | Han            |
+     1 | 𦞕    | CJK UNIFIED IDEOGRAPH-26795        | Lo  | Han            |
+     1 | 𪘆    | CJK UNIFIED IDEOGRAPH-2A606        | Lo  | Han            |
+     1 | 𪢨    | CJK UNIFIED IDEOGRAPH-2A8A8        | Lo  | Han            |
+     1 | 𪪖    | CJK UNIFIED IDEOGRAPH-2AA96        | Lo  | Han            |
+     1 | 𫔺    | CJK UNIFIED IDEOGRAPH-2B53A        | Lo  | Han            |
+     1 | 𫜴    | CJK UNIFIED IDEOGRAPH-2B734        | Lo  | Han            |
+     1 | 𫝀    | CJK UNIFIED IDEOGRAPH-2B740        | Lo  | Han            |
+     1 | 𫝻    | CJK UNIFIED IDEOGRAPH-2B77B        | Lo  | Han            |
+     1 | 𫞂    | CJK UNIFIED IDEOGRAPH-2B782        | Lo  | Han            |
+     1 | 𫠝    | CJK UNIFIED IDEOGRAPH-2B81D        | Lo  | Han            |
+     1 | 𫠫    | CJK UNIFIED IDEOGRAPH-2B82B        | Zzzz| Unknown        |
+     1 | 𬚚    | CJK UNIFIED IDEOGRAPH-2C69A        | Zzzz| Unknown        |
+     1 | 𬳕    | CJK UNIFIED IDEOGRAPH-2CCD5        | Zzzz| Unknown        |
+     1 | 𬺡    | CJK UNIFIED IDEOGRAPH-2CEA1        | Zzzz| Unknown        |
+     1 | 㖧    | CJK UNIFIED IDEOGRAPH-35A7         | Lo  | Han            |
+     1 | 㡛    | CJK UNIFIED IDEOGRAPH-385B         | Lo  | Han            |
+     1 | 㬐    | CJK UNIFIED IDEOGRAPH-3B10         | Lo  | Han            |
+     1 | 䵍    | CJK UNIFIED IDEOGRAPH-4D4D         | Lo  | Han            |
+     1 | 䶅    | CJK UNIFIED IDEOGRAPH-4D85         | Lo  | Han            |
+     1 | 义    | CJK UNIFIED IDEOGRAPH-4E49         | Lo  | Han            |
+     1 | 礼    | CJK UNIFIED IDEOGRAPH-793C         | Lo  | Han            |
+     1 | 禮    | CJK UNIFIED IDEOGRAPH-79AE         | Lo  | Han            |
+     1 | 義    | CJK UNIFIED IDEOGRAPH-7FA9         | Lo  | Han            |
+     1 | 說    | CJK UNIFIED IDEOGRAPH-8AAA         | Lo  | Han            |
+     1 | 说    | CJK UNIFIED IDEOGRAPH-8BF4         | Lo  | Han            |
+     1 | 选    | CJK UNIFIED IDEOGRAPH-9009         | Lo  | Han            |
+     1 | 選    | CJK UNIFIED IDEOGRAPH-9078         | Lo  | Han            |
+     1 | :     | COLON                              | Po  | Common         |
+     1 | .     | FULL STOP                          | Po  | Common         |
+     2 | -     | HYPHEN-MINUS                       | Pd  | Common         |
+    21 | 、    | IDEOGRAPHIC COMMA                  | Po  | Common         |
+     1 | A     | LATIN CAPITAL LETTER A             | L   | Latin          |
+     1 | B     | LATIN CAPITAL LETTER B             | L   | Latin          |
+    10 | C     | LATIN CAPITAL LETTER C             | L   | Latin          |
+     1 | D     | LATIN CAPITAL LETTER D             | L   | Latin          |
+     6 | E     | LATIN CAPITAL LETTER E             | L   | Latin          |
+     1 | F     | LATIN CAPITAL LETTER F             | L   | Latin          |
+     5 | J     | LATIN CAPITAL LETTER J             | L   | Latin          |
+     5 | K     | LATIN CAPITAL LETTER K             | L   | Latin          |
+     1 | S     | LATIN CAPITAL LETTER S             | L   | Latin          |
+     1 | T     | LATIN CAPITAL LETTER T             | L   | Latin          |
+     7 | a     | LATIN SMALL LETTER A               | L   | Latin          |
+     3 | c     | LATIN SMALL LETTER C               | L   | Latin          |
+     2 | d     | LATIN SMALL LETTER D               | L   | Latin          |
+    16 | e     | LATIN SMALL LETTER E               | L   | Latin          |
+     2 | f     | LATIN SMALL LETTER F               | L   | Latin          |
+     2 | g     | LATIN SMALL LETTER G               | L   | Latin          |
+     5 | h     | LATIN SMALL LETTER H               | L   | Latin          |
+    12 | i     | LATIN SMALL LETTER I               | L   | Latin          |
+     2 | l     | LATIN SMALL LETTER L               | L   | Latin          |
+     2 | m     | LATIN SMALL LETTER M               | L   | Latin          |
+    14 | n     | LATIN SMALL LETTER N               | L   | Latin          |
+     9 | o     | LATIN SMALL LETTER O               | L   | Latin          |
+     4 | p     | LATIN SMALL LETTER P               | L   | Latin          |
+     7 | r     | LATIN SMALL LETTE
+	 R R               | L   | Latin          |
+    10 | s     | LATIN SMALL LETTER S               | L   | Latin          |
+    16 | t     | LATIN SMALL LETTER T               | L   | Latin          |
+     6 | x     | LATIN SMALL LETTER X               | L   | Latin          |
+     1 | y     | LATIN SMALL LETTER Y               | L   | Latin          |
+     3 | /     | SOLIDUS                            | Po  | Common         |
+    30 |       | SPACE                              | Zs  | Common         |
+
+Sorted by Cat.
+
+ Freq. | Char. | Unicode name                       | Cat.| Script         |
+     1 | :     | COLON                              | Po  | Common         |
+     1 | .     | FULL STOP                          | Po  | Common         |
+     2 | -     | HYPHEN-MINUS                       | Pd  | Common         |
+    21 | 、    | IDEOGRAPHIC COMMA                  | Po  | Common         |
+     3 | /     | SOLIDUS                            | Po  | Common         |
+    30 |       | SPACE                              | Zs  | Common         |
+     1 | 𣚣    | CJK UNIFIED IDEOGRAPH-236A3        | Lo  | Han            |
+     1 | 𦞕    | CJK UNIFIED IDEOGRAPH-26795        | Lo  | Han            |
+     1 | 𪘆    | CJK UNIFIED IDEOGRAPH-2A606        | Lo  | Han            |
+     1 | 𪢨    | CJK UNIFIED IDEOGRAPH-2A8A8        | Lo  | Han            |
+     1 | 𪪖    | CJK UNIFIED IDEOGRAPH-2AA96        | Lo  | Han            |
+     1 | 𫔺    | CJK UNIFIED IDEOGRAPH-2B53A        | Lo  | Han            |
+     1 | 𫜴    | CJK UNIFIED IDEOGRAPH-2B734        | Lo  | Han            |
+     1 | 𫝀    | CJK UNIFIED IDEOGRAPH-2B740        | Lo  | Han            |
+     1 | 𫝻    | CJK UNIFIED IDEOGRAPH-2B77B        | Lo  | Han            |
+     1 | 𫞂    | CJK UNIFIED IDEOGRAPH-2B782        | Lo  | Han            |
+     1 | 𫠝    | CJK UNIFIED IDEOGRAPH-2B81D        | Lo  | Han            |
+     1 | 㖧    | CJK UNIFIED IDEOGRAPH-35A7         | Lo  | Han            |
+     1 | 㡛    | CJK UNIFIED IDEOGRAPH-385B         | Lo  | Han            |
+     1 | 㬐    | CJK UNIFIED IDEOGRAPH-3B10         | Lo  | Han            |
+     1 | 䵍    | CJK UNIFIED IDEOGRAPH-4D4D         | Lo  | Han            |
+     1 | 䶅    | CJK UNIFIED IDEOGRAPH-4D85         | Lo  | Han            |
+     1 | 义    | CJK UNIFIED IDEOGRAPH-4E49         | Lo  | Han            |
+     1 | 礼    | CJK UNIFIED IDEOGRAPH-793C         | Lo  | Han            |
+     1 | 禮    | CJK UNIFIED IDEOGRAPH-79AE         | Lo  | Han            |
+     1 | 義    | CJK UNIFIED IDEOGRAPH-7FA9         | Lo  | Han            |
+     1 | 說    | CJK UNIFIED IDEOGRAPH-8AAA         | Lo  | Han            |
+     1 | 说    | CJK UNIFIED IDEOGRAPH-8BF4         | Lo  | Han            |
+     1 | 选    | CJK UNIFIED IDEOGRAPH-9009         | Lo  | Han            |
+     1 | 選    | CJK UNIFIED IDEOGRAPH-9078         | Lo  | Han            |
+     1 | A     | LATIN CAPITAL LETTER A             | L   | Latin          |
+     1 | B     | LATIN CAPITAL LETTER B             | L   | Latin          |
+    10 | C     | LATIN CAPITAL LETTER C             | L   | Latin          |
+     1 | D     | LATIN CAPITAL LETTER D             | L   | Latin          |
+     6 | E     | LATIN CAPITAL LETTER E             | L   | Latin          |
+     1 | F     | LATIN CAPITAL LETTER F             | L   | Latin          |
+     5 | J     | LATIN CAPITAL LETTER J             | L   | Latin          |
+     5 | K     | LATIN CAPITAL LETTER K             | L   | Latin          |
+     1 | S     | LATIN CAPITAL LETTER S             | L   | Latin          |
+     1 | T     | LATIN CAPITAL LETTER T             | L   | Latin          |
+     7 | a     | LATIN SMALL LETTER A               | L   | Latin          |
+     3 | c     | LATIN SMALL LETTER C               | L   | Latin          |
+     2 | d     | LATIN SMALL LETTER D               | L   | Latin          |
+    16 | e     | LATIN SMALL LETTER E               | L   | Latin          |
+     2 | f     | LATIN SMALL LETTER F               | L   | Latin          |
+     2 | g     | LATIN SMALL LETTER G               | L   | Latin          |
+     5 | h     | LATIN SMALL LETTER H               | L   | Latin          |
+    12 | i     | LATIN SMALL LETTER I               | L   | Latin          |
+     2 | l     | LATIN SMALL LETTER L               | L   | Latin          |
+     2 | m     | LATIN SMALL LETTER M               | L   | Latin          |
+    14 | n     | LATIN SMALL LETTER N               | L   | Latin          |
+     9 | o     | LATIN SMALL LETTER O               | L   | Latin          |
+     4 | p     | LATIN SMALL LETTER P               | L   | Latin          |
+     7 | r     | LATIN SMALL LETTER R               | L   | Latin          |
+    10 | s     | LATIN SMALL LETTER S               | L   | Latin          |
+    16 | t     | LATIN SMALL LETTER T               | L   | Latin          |
+     6 | x     | LATIN SMALL LETTER X               | L   | Latin          |
+     1 | y     | LATIN SMALL LETTER Y               | L   | Latin          |
+     1 | 𫠫    | CJK UNIFIED IDEOGRAPH-2B82B        | Zzzz| Unknown        |
+     1 | 𬚚    | CJK UNIFIED IDEOGRAPH-2C69A        | Zzzz| Unknown        |
+     1 | 𬳕    | CJK UNIFIED IDEOGRAPH-2CCD5        | Zzzz| Unknown        |
+     1 | 𬺡    | CJK UNIFIED IDEOGRAPH-2CEA1        | Zzzz| Unknown        |
+
+Sorted by Script
+
+ Freq. | Char. | Unicode name                       | Cat.| Script         |
+     1 | A     | LATIN CAPITAL LETTER A             | L   | Latin          |
+     1 | B     | LATIN CAPITAL LETTER B             | L   | Latin          |
+    10 | C     | LATIN CAPITAL LETTER C             | L   | Latin          |
+     1 | D     | LATIN CAPITAL LETTER D             | L   | Latin          |
+     6 | E     | LATIN CAPITAL LETTER E             | L   | Latin          |
+     1 | F     | LATIN CAPITAL LETTER F             | L   | Latin          |
+     5 | J     | LATIN CAPITAL LETTER J             | L   | Latin          |
+     5 | K     | LATIN CAPITAL LETTER K             | L   | Latin          |
+     1 | S     | LATIN CAPITAL LETTER S             | L   | Latin          |
+     1 | T     | LATIN CAPITAL LETTER T             | L   | Latin          |
+     7 | a     | LATIN SMALL LETTER A               | L   | Latin          |
+     3 | c     | LATIN SMALL LETTER C               | L   | Latin          |
+     2 | d     | LATIN SMALL LETTER D               | L   | Latin          |
+    16 | e     | LATIN SMALL LETTER E               | L   | Latin          |
+     2 | f     | LATIN SMALL LETTER F               | L   | Latin          |
+     2 | g     | LATIN SMALL LETTER G               | L   | Latin          |
+     5 | h     | LATIN SMALL LETTER H               | L   | Latin          |
+    12 | i     | LATIN SMALL LETTER I               | L   | Latin          |
+     2 | l     | LATIN SMALL LETTER L               | L   | Latin          |
+     2 | m     | LATIN SMALL LETTER M               | L   | Latin          |
+    14 | n     | LATIN SMALL LETTER N               | L   | Latin          |
+     9 | o     | LATIN SMALL LETTER O               | L   | Latin          |
+     4 | p     | LATIN SMALL LETTER P               | L   | Latin          |
+     7 | r     | LATIN SMALL LETTER R               | L   | Latin          |
+    10 | s     | LATIN SMALL LETTER S               | L   | Latin          |
+    16 | t     | LATIN SMALL LETTER T               | L   | Latin          |
+     6 | x     | LATIN SMALL LETTER X               | L   | Latin          |
+     1 | y     | LATIN SMALL LETTER Y               | L   | Latin          |
+     1 | 𣚣    | CJK UNIFIED IDEOGRAPH-236A3        | Lo  | Han            |
+     1 | 𦞕    | CJK UNIFIED IDEOGRAPH-26795        | Lo  | Han            |
+     1 | 𪘆    | CJK UNIFIED IDEOGRAPH-2A606        | Lo  | Han            |
+     1 | 𪢨    | CJK UNIFIED IDEOGRAPH-2A8A8        | Lo  | Han            |
+     1 | 𪪖    | CJK UNIFIED IDEOGRAPH-2AA96        | Lo  | Han            |
+     1 | 𫔺    | CJK UNIFIED IDEOGRAPH-2B53A        | Lo  | Han            |
+     1 | 𫜴    | CJK UNIFIED IDEOGRAPH-2B734        | Lo  | Han            |
+     1 | 𫝀    | CJK UNIFIED IDEOGRAPH-2B740        | Lo  | Han            |
+     1 | 𫝻    | CJK UNIFIED IDEOGRAPH-2B77B        | Lo  | Han            |
+     1 | 𫞂    | CJK UNIFIED IDEOGRAPH-2B782        | Lo  | Han            |
+     1 | 𫠝    | CJK UNIFIED IDEOGRAPH-2B81D        | Lo  | Han            |
+     1 | 㖧    | CJK UNIFIED IDEOGRAPH-35A7         | Lo  | Han            |
+     1 | 㡛    | CJK UNIFIED IDEOGRAPH-385B         | Lo  | Han            |
+     1 | 㬐    | CJK UNIFIED IDEOGRAPH-3B10         | Lo  | Han            |
+     1 | 䵍    | CJK UNIFIED IDEOGRAPH-4D4D         | Lo  | Han            |
+     1 | 䶅    | CJK UNIFIED IDEOGRAPH-4D85         | Lo  | Han            |
+     1 | 义    | CJK UNIFIED IDEOGRAPH-4E49         | Lo  | Han            |
+     1 | 礼    | CJK UNIFIED IDEOGRAPH-793C         | Lo  | Han            |
+     1 | 禮    | CJK UNIFIED IDEOGRAPH-79AE         | Lo  | Han            |
+     1 | 義    | CJK UNIFIED IDEOGRAPH-7FA9         | Lo  | Han            |
+     1 | 說    | CJK UNIFIED IDEOGRAPH-8AAA         | Lo  | Han            |
+     1 | 说    | CJK UNIFIED IDEOGRAPH-8BF4         | Lo  | Han            |
+     1 | 选    | CJK UNIFIED IDEOGRAPH-9009         | Lo  | Han            |
+     1 | 選    | CJK UNIFIED IDEOGRAPH-9078         | Lo  | Han            |
+     2 | -     | HYPHEN-MINUS                       | Pd  | Common         |
+     1 | :     | COLON                              | Po  | Common         |
+     1 | .     | FULL STOP                          | Po  | Common         |
+    21 | 、    | IDEOGRAPHIC COMMA                  | Po  | Common         |
+     3 | /     | SOLIDUS                            | Po  | Common         |
+    30 |       | SPACE                              | Zs  | Common         |
+     1 | 𫠫    | CJK UNIFIED IDEOGRAPH-2B82B        | Zzzz| Unknown        |
+     1 | 𬚚    | CJK UNIFIED IDEOGRAPH-2C69A        | Zzzz| Unknown        |
+     1 | 𬳕    | CJK UNIFIED IDEOGRAPH-2CCD5        | Zzzz| Unknown        |
+     1 | 𬺡    | CJK UNIFIED IDEOGRAPH-2CEA1        | Zzzz| Unknown        |

@@ -1,4 +1,4 @@
-import sys,io
+import sys,csv
 import unicodedata
 from operator import itemgetter
 from collections import defaultdict
@@ -630,26 +630,24 @@ def test():
 	print(unicode_category.keys())
 
 	print(script_cat('Ф'))
+
+def write_csv(filename,column_headers):
+	'''Read or write to a csv file containing the names of each marker and it's language and script'''
 	
-if __name__ == "__main__" :
+	headers = dict(column_headers)
+	with open(filename,'w',encoding=utf8) as out:
+			f = csv.DictWriter(out,column_headers)
+			f.writeheader()
+	return
 
-	parser = argparse.ArgumentParser(description="Count occurrences of all characters in a file.")
-	parser.add_argument("-in", "--input",   help="Specify file to read in.")
-	parser.add_argument("-out" ,"--output", help="Specify the file name for the report.")
-	args = parser.parse_args()
-
+def readfile(filename):
 	char_count = Counter()
 	char_data = []
+	with open(args.input, 'r', encoding='utf-8') as infile:
+		for line in infile:
+			char_count.update(line)
 
-	if not args.input:
-		print("Use: CharCount -in <inputfile>")
-		exit()
-	else:	
-		with io.open(args.input, 'r', encoding='utf-8') as infile:
-			for line in infile:
-				char_count.update(line)
-
-	#Delete newline count.
+	#Delete the newline count as it messes up the table.
 	del char_count['\n']
 
 	for character,count in char_count.most_common():
@@ -657,52 +655,93 @@ if __name__ == "__main__" :
 			name = unicodedata.name(character)
 		except:
 			name = "Couldn't find Unicode name"
+		
 		script   = "Unknown"
 		category = "Unknown"
-		
+
 		script, category = script_cat(character)
 		cdata = (count,character,name,script,category)
 		char_data.append(cdata)
 		
-	#Find the longest strings to adjust the column widths well.
-	#Not yet implemented
-		
-	#max_count = max(char_data, key=[0])
-	#print("char_data is {}\n".format(char_data))
-	#print("max_count is {}".format(max_count))
-	#exit()
+	return char_data
+	
+	
+def format_output(char_data):
+
+	lines = []
+	#Prepare the output, sorted in various ways.
+	#Sort by each column in turn
+	for i,column in enumerate(column_headers):
+		char_data = sorted(char_data, key=itemgetter(i))
+		lines.append("\nSorted by {}\n".format(column))
+		lines.append(column_title)
+		for count, character, name, script, category  in char_data:
+			if count_bytes(character) == 1 :
+				lines.append(one_byte_row_format.format(count,character, name, category ,script))
+			else :
+				lines.append(two_byte_row_format.format(count,character, name, category ,script))
+	return lines
+
+
+if __name__ == "__main__" :
+
+	class MyParser(argparse.ArgumentParser):
+		def error(self, message):
+			sys.stderr.write('error: %s\n' % message)
+			self.print_help()
+			sys.exit(2)
+
+	parser = MyParser()
+
+	parser = argparse.ArgumentParser(description="Count occurrences of all characters in a file.")
+	parser.add_argument("-in", "--input",   help="Specify file to read in.")
+	parser.add_argument("-csv",action='store_true', help="Write the report in csv format.")
+	parser.add_argument("-out" ,"--output", help="Specify the file name for the report.")
+	args = parser.parse_args()
+	# print(args)
+	# print(args.input)
+	# print(args.csv)
+	# print(args.output)
+	
+	if not args.input:
+		parser.print_help()
+		sys.exit(2)
 	
 	column_widths         = "{0:<6} | {1:<5} | {2:<35}| {3:<4}| {4:<15}|"
 	one_byte_row_format   = "{0:>6} | {1:<5} | {2:<35}| {3:<4}| {4:<15}|"
 	two_byte_row_format   = "{0:>6} | {1:<4} | {2:<35}| {3:<4}| {4:<15}|"
 	column_headers = (" Freq.","Char.","Unicode name","Cat.","Script")
 	column_title  = column_widths.format(*column_headers)
-	
-	#Print the output sorted in various ways.
-	#Not yet implemented
-	#Sort by each column in turn
-	for i,column in enumerate(column_headers):
-		char_data = sorted(char_data, key=itemgetter(i))
-		print("\nSorted by {}".format(column))
-		#print(char_data)
-		print(column_title)
-		for count, character, name, script, category  in char_data:
-			if count_bytes(character) == 1 :
-				print(one_byte_row_format.format(count,character, name, category ,script))
-			else :
-				#continue
-				print(two_byte_row_format.format(count,character, name, category ,script))
-		
-	
-	
-	if args.output:
+
+	char_data = readfile(args.input)
+	lines = format_output(char_data)
+
+	if not args.output and not args.csv:
+		for line in lines:
+			print(line,end='\n')
+
+	elif not args.output and args.csv:
+		print("\nThe -csv flag requires an output file to be specified.\n")
+		parser.print_help()
+		sys.exit(2)
+
+	elif args.output and not args.csv:
+		# for i,column in enumerate(column_headers):
+			# char_data = sorted(char_data, key=itemgetter(i))
+			# lines.append("\nSorted by {}\n".format(column))
+			# lines.append(column_title+"\n")
+			# for count, character, name, script, category  in char_data:
+				# lines.append(column_widths.format(count,character, name, category ,script)+"\n")
 		with open(args.output, 'w', encoding='utf-8') as outfile:
-			outfile.write(column_names + '\n')
-			for count, character, name in char_data:
-				if count_bytes(character) == 1 :
-					outfile.write(row_string_one_byte.format(count,character, name))
-				else : 
-					outfile.write(row_string_more_bytes.format(count,character, name))
+			for line in lines:
+				outfile.write(line)
 				outfile.write("\n")
 
-	test()
+	elif args.output and args.csv :
+		csv.register_dialect('default')
+		write_csv(args.output,column_headers)
+		
+	else:
+		print("Seems to be a logic error in the code.")
+		sys.exit(2)
+	#test()
