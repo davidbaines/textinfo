@@ -631,14 +631,18 @@ def test():
 
 	print(script_cat('Ф'))
 
-def write_csv(filename,column_headers):
+def write_csv(filename,column_headers, char_data):
 	'''Read or write to a csv file containing the names of each marker and it's language and script'''
+	print(column_headers)
+	#column_headers = [*column_headers]
+	#print(column_headers)
+	print(char_data)
 	
-	headers = dict(column_headers)
-	with open(filename,'w',encoding=utf8) as out:
-			f = csv.DictWriter(out,column_headers)
-			f.writeheader()
-	return
+	with open(filename,'w',encoding='utf-8', newline='') as csvfile:
+		writer = csv.writer(csvfile)
+		writer.writerow(column_headers)
+		writer.writerows(char_data)
+	return None
 
 def readfile(filename):
 	char_count = Counter()
@@ -706,15 +710,19 @@ if __name__ == "__main__" :
 	if not args.input:
 		parser.print_help()
 		sys.exit(2)
-	
-	column_widths         = "{0:<6} | {1:<5} | {2:<35}| {3:<4}| {4:<15}|"
-	one_byte_row_format   = "{0:>6} | {1:<5} | {2:<35}| {3:<4}| {4:<15}|"
-	two_byte_row_format   = "{0:>6} | {1:<4} | {2:<35}| {3:<4}| {4:<15}|"
-	column_headers = (" Freq.","Char.","Unicode name","Cat.","Script")
-	column_title  = column_widths.format(*column_headers)
+		
+	elif args.input:
+		column_widths         = "{0:<6} | {1:<5} | {2:<35}| {3:<4}| {4:<15}|"
+		one_byte_row_format   = "{0:>6} | {1:<5} | {2:<35}| {3:<4}| {4:<15}|"
+		two_byte_row_format   = "{0:>6} | {1:<4} | {2:<35}| {3:<4}| {4:<15}|"
+		column_headers = (" Freq.","Char.","Unicode name","Cat.","Script")
+		column_title  = column_widths.format(*column_headers)
 
-	char_data = readfile(args.input)
-	lines = format_output(char_data)
+		char_data = readfile(args.input)
+		lines = format_output(char_data)
+	else:
+		print("Seems to be a logic error in the code related to args.input = {}".format(args.input))
+		sys.exit(2)
 
 	if not args.output and not args.csv:
 		for line in lines:
@@ -739,7 +747,7 @@ if __name__ == "__main__" :
 
 	elif args.output and args.csv :
 		csv.register_dialect('default')
-		write_csv(args.output,column_headers)
+		write_csv(args.output,column_headers,char_data)
 		
 	else:
 		print("Seems to be a logic error in the code.")
