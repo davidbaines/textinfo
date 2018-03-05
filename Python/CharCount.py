@@ -612,31 +612,8 @@ def _compile_scripts_txt():
 def count_bytes(character):
 	return len(character.encode('utf8'))
 
-def test():
-	u = chr(233) + chr(0x0bf2) + chr(3972) + chr(6000) + chr(13231)
-
-	for i, c in enumerate(u):
-		print(i, '%04x' % ord(c), unicodedata.category(c), end=" ")
-		print(unicodedata.name(c))
-
-	# Get numeric value of second character
-	print(unicodedata.numeric(u[1]))
-
-	unicode_category = defaultdict(list)
-	for c in map(chr, range(sys.maxunicode + 1)):
-		unicode_category[unicodedata.category(c)].append(c)
-		
-	alphabetic = unicode_category['Ll']
-	print(unicode_category.keys())
-
-	print(script_cat('Ф'))
-
 def write_csv(filename,column_headers, char_data):
-	'''Read or write to a csv file containing the names of each marker and it's language and script'''
-	print(column_headers)
-	#column_headers = [*column_headers]
-	#print(column_headers)
-	print(char_data)
+	'''Write the data to a csv file.'''
 	
 	with open(filename,'w',encoding='utf-8', newline='') as csvfile:
 		writer = csv.writer(csvfile)
@@ -702,11 +679,7 @@ if __name__ == "__main__" :
 	parser.add_argument("-csv",action='store_true', help="Write the report in csv format.")
 	parser.add_argument("-out" ,"--output", help="Specify the file name for the report.")
 	args = parser.parse_args()
-	# print(args)
-	# print(args.input)
-	# print(args.csv)
-	# print(args.output)
-	
+
 	if not args.input:
 		parser.print_help()
 		sys.exit(2)
@@ -734,12 +707,6 @@ if __name__ == "__main__" :
 		sys.exit(2)
 
 	elif args.output and not args.csv:
-		# for i,column in enumerate(column_headers):
-			# char_data = sorted(char_data, key=itemgetter(i))
-			# lines.append("\nSorted by {}\n".format(column))
-			# lines.append(column_title+"\n")
-			# for count, character, name, script, category  in char_data:
-				# lines.append(column_widths.format(count,character, name, category ,script)+"\n")
 		with open(args.output, 'w', encoding='utf-8') as outfile:
 			for line in lines:
 				outfile.write(line)
@@ -752,4 +719,3 @@ if __name__ == "__main__" :
 	else:
 		print("Seems to be a logic error in the code.")
 		sys.exit(2)
-	#test()
