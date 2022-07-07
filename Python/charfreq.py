@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os, sys, csv
-import unicodedata, pathlib
-from operator import itemgetter
-from collections import OrderedDict
+import argparse
+import csv
+import os
+import sys
+import unicodedata
+
 from collections import Counter
 from datetime import datetime as dt
+from operator import itemgetter
+from collections import OrderedDict
 from pathlib import Path
 from tqdm import tqdm
-
-root = r"D:\Work\MT\scripture\temp"
-output_folder = Path(r"D:\Work\MT\scripture\temp\results")
-
-ext = r'txt'
-
-detail_csv_file  = output_folder / "character_report.csv"
-summary_csv_file = output_folder / "summary.csv"
 
 script_data = {
     "names": ['Common', 'Latin', 'Greek', 'Cyrillic', 'Armenian', 'Hebrew', 'Arabic',
@@ -673,24 +669,47 @@ def get_character_data(char_counts,file = ""):
     return character_data
 
 def main():
-    path_split = Path(root).parts
+
+    parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
+    parser.add_argument('--input_folder',  type=Path,                                   help="Folder to search", required=True)
+    parser.add_argument('--output_folder', type=Path,                                   help="Folder for the output results, default is the current folder.", required=False)
+    parser.add_argument('--extension',     type=str,  default="*",                     help="Specify which files to read by extension. Default is all file types.")
+    parser.add_argument("--summary",       type=str,  default="character_summary.csv", help="The filename for the summary csv file.")
+    parser.add_argument("--full",          type=str,  default="character_report.csv",  help="The filename for the summary csv file.")
+    
+    args = parser.parse_args()
+   
+    input_folder  = args.input_folder
+    
+    if args.output_folder:
+        output_folder = Path(args.output_folder)
+    else: 
+        output_folder = Path.cwd()
+        
+    print(input_folder)
+    print(output_folder)
+   
+    extension = args.extension
+    summary_csv_file = output_folder / args.summary
+    detail_csv_file  = output_folder / args.full
+
+    path_split = Path(input_folder).parts
     folder = path_split[-1]
-    root_Path = Path(root)
+    
+    #root_Path = Path(root)
 
-    fileExt = "".join([r"**\*.", ext])
-    files_found = sorted(root_Path.glob(fileExt))
+    pattern = "".join([r"**\*.", extension])
+    files_found = sorted(input_folder.glob(pattern))
 
-    print(f"Found {len(files_found)} {ext} files in folder {root_Path}")
-    #for f in  files_found : print(f)
-
+    print(f"Found {len(files_found)} files with extension: {extension} in {input_folder}")
+    
     #Keep a list of the files we've read.
     files_read = []
 
     #Keep a dictionary of character counters for with filename as key.
-    files_char_data = {}
-
-    files =[]
-    all_char_data = []
+    files_char_data = dict()
+    files = list()
+    all_char_data = list()
 
     #Keep a running total of the characters seen across all files.
     all_chars = Counter()
