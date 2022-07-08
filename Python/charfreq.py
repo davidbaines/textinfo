@@ -686,8 +686,8 @@ def main():
     else: 
         output_folder = Path.cwd()
         
-    print(input_folder)
-    print(output_folder)
+    #print(input_folder)
+    #print(output_folder)
    
     extension = args.extension
     summary_csv_file = output_folder / args.summary
@@ -701,7 +701,7 @@ def main():
     pattern = "".join([r"**\*.", extension])
     files_found = sorted(input_folder.glob(pattern))
 
-    print(f"Found {len(files_found)} files with extension: {extension} in {input_folder}")
+    print(f"Found {len(files_found)} files with .{extension} extension in {input_folder}")
     
     #Keep a list of the files we've read.
     files_read = []
@@ -721,48 +721,48 @@ def main():
     then = dt.now()
 
     filecount = 0
-    process_by_file = True
 
-    if process_by_file:
+    for file in tqdm(files_found):
+        # _________________________This section just for feedback ___________________________
+        count += 1
+        filesize = os.path.getsize(file)
+        files_size += filesize
 
-        for i, file in tqdm(enumerate(files_found)):
-            # _________________________This section just for feedback ___________________________
-            # count += 1
-            # filesize = os.path.getsize(file)
-            # files_size += filesize
+        if not (count % 500):
+           print("Reading {}th file: {}".format(count, file))
+           time_taken = dt.now() - then
+           seconds = int(max(time_taken.total_seconds(), 1))
+           print(f"It took {seconds} seconds to process {files_size} bytes. Ave: {int(files_size / (seconds*1024))} b/second.\n")
+           then = dt.now()
+        # _________________________This section just for feedback ___________________________
 
-            # if not (count % 500):
-                # print("Reading {}th file: {}".format(count, file))
-                # time_taken = dt.now() - then
-                # seconds = int(max(time_taken.total_seconds(), 1))
-                # print(f"It took {seconds} seconds to process {files_size} bytes. Ave: {int(files_size / (seconds*1024))} b/second.\n")
-                # then = dt.now()
-            # _________________________This section just for feedback ___________________________
+        # Count all characters in this file (Counter).
+        char_counter = count_chars(file)
 
-            # Count all characters in this file (Counter).
-            char_counter = count_chars(file)
+        #Update the total character counts for all files.
+        all_chars.update(char_counter)
 
-            #Update the total character counts for all files.
-            all_chars.update(char_counter)
+        #List of dictionaries (one per char) with info.
+        chars_list = get_character_data(char_counter,file)
 
-            #List of dictionaries (one per char) with info.
-            chars_list = get_character_data(char_counter,file)
-
-            #Write out the data for this file to the detailled csv file
-            filecount += 1
-            if filecount == 1:          #If it is the first writing then write the column headers.
-                # Set column headers
-                column_headers = chars_list[0].keys()
-                
-                with open(detail_csv_file, 'w', encoding='utf-8', newline='') as csvfile:
-                    writer = csv.DictWriter(csvfile, fieldnames=column_headers)
-                    writer.writeheader()
-            else :                      #For subsequent files just write the data.
-                with open(detail_csv_file, 'a', encoding='utf-8', newline='') as csvfile:
-                    writer = csv.DictWriter(csvfile, fieldnames=column_headers)
-                    for char_dict in chars_list:
-                        writer.writerow(char_dict)
-        print(f'Wrote detailed csv file to {detail_csv_file}')
+        #Write out the data for this file to the detailled csv file
+        filecount += 1
+        if filecount == 1:          #If it is the first writing then write the column headers.
+            # Set column headers
+            column_headers = chars_list[0].keys()
+            
+            with open(detail_csv_file, 'w', encoding='utf-8', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=column_headers)
+                writer.writeheader()
+                for char_dict in chars_list:
+                    writer.writerow(char_dict)
+                    
+        else :                      #For subsequent files just write the data.
+            with open(detail_csv_file, 'a', encoding='utf-8', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=column_headers)
+                for char_dict in chars_list:
+                    writer.writerow(char_dict)
+    print(f'Wrote detailed csv file to {detail_csv_file}')
 
     all_char_data = get_character_data(all_chars)
     column_headers = all_char_data[0].keys()
