@@ -5,6 +5,7 @@ import argparse
 import unicodedata
 from pathlib import Path
 import string
+from tqdm import tqdm
 
 """
 Transliterate:
@@ -41,7 +42,23 @@ ARABIC TATWEEL WITH TWO DOTS BELOW
 source          = [1611,1612,1613,1614,1615,1616,1617,1618,1620,1648,8204,8205]
 destination     = [1907,1912,1909,1736,1734,1742,2188,2187,2179,2221,2180,2181]
 transliteration = {s:d for s,d in zip(source, destination)}
-  
+
+def _count_generator(reader,file):
+    b = reader(1024 * 1024)
+    while b:
+        yield b
+        b = reader(1024 * 1024)
+
+    with open(file, 'rb') as fp:
+        c_generator = _count_generator(fp.raw.read)
+        # count each \n
+        count = sum(buffer.count(b'\n') for buffer in c_generator)
+        #print('Total lines:', count + 1)
+    return count + 1
+    
+def count_lines(file):
+    return sum(1 for line in open(file,'r'))
+    
 def main():
 
     parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
