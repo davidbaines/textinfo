@@ -1,4 +1,4 @@
-# text_info
+# textinfo
 usage:
 python charcount.py -in <input_file>
 
