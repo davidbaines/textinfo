@@ -65,9 +65,9 @@ def simple_solution(file):
         names_on_line = [name for name in filter(is_name, words)]
         names.append(names_on_line)
         
-        print(f"\nLine:  {line}")
-        print(f"Words: {words}")
-        print(f"Names: {names_on_line}")
+        #print(f"\nLine:  {line}")
+        #print(f"Words: {words}")
+        #print(f"Names: {names_on_line}")
 
     return names
 
@@ -122,12 +122,12 @@ def remove_first_only(names):
     
     for name in sorted(first_count):
         if total_count[name] == first_count[name]:
-            print(f"{name}, {total_count[name]}, {first_count[name]}")
+            #print(f"{name}, {total_count[name]}, {first_count[name]}")
             ignored_names.add(name)
     
     print(f"Found {len(total_count)} title case words.\nFound {len(first_count)} words at the start. There are {len(ignored_names)} words which only appear at the start.")
     
-    print(ignored_names,len(ignored_names))
+    #print(ignored_names,len(ignored_names))
     filtered_names = list()
     for namelist in names:
         filtered_names.append([name for name in namelist if name not in ignored_names])
@@ -154,19 +154,20 @@ def main():
     with open(input_file, 'r', encoding='utf-8', newline='') as file_in:
         
         names = simple_solution(file_in)
-        pprint(names[0:9])
+        #pprint(names[0:9])
         filtered_names = remove_first_only(names)
         
         if args.output_file:
             output_file = Path(args.output_file)
-            with open(output_file, 'w', encoding='utf-8', newline='') as file_out:
-                for line in file_in:
-                    file_out.write(f"{' '.join(filtered_name)}")
+            print(f"Writing {output_file}")
+            with open(output_file, 'w', encoding='utf-8', newline='\n') as file_out:
+                for filtered_name in filtered_names:
+                    file_out.write(f"{' '.join(filtered_name)}\n")
         else:
             for i, filtered_name in enumerate(filtered_names):
                 if filtered_name:
                     print(f"{i+1}  {' '.join(filtered_name)}") 
-            
+
     #punct = get_punctuation(input_file)
     #punct_list = [p for p in get_punctuation(input_file).keys()]
     #punct_str = ''.join(punct_list)
