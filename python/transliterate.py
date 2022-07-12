@@ -2,10 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import unicodedata
+                  
 from pathlib import Path
+from pprint import pprint
 import string
 from tqdm import tqdm
+import unicodedata
+
 
 """
 Transliterate:
@@ -22,6 +25,11 @@ ARABIC LETTER SUPERSCRIPT ALEF
 ZERO WIDTH NON JOINER           
 ZERO WIDTH JOINER             
 
+# Added for ACW
+ARABIC MADDAH ABOVE 1619
+ARABIC HAMZA BELOW 1621
+ARABIC WAVY HAMZA BELOW 1631
+
 to:
 
 ARABIC LETTER ALEF WITH EXTENDED ARABIC-INDIC DIGIT TWO ABOVE
@@ -37,10 +45,15 @@ ARABIC LETTER LOW ALEF
 ARABIC TATWEEL WITH OVERSTRUCK WAW
 ARABIC TATWEEL WITH TWO DOTS BELOW
 
+# Added for ACW
+ARABIC SMALL HIGH ZAIN 1559
+ARABIC SMALL DAMMA 1561
+ARABIC SMALL KASRA 1562
+
 """
 
-source          = [1611,1612,1613,1614,1615,1616,1617,1618,1620,1648,8204,8205]
-destination     = [1907,1912,1909,1736,1734,1742,2188,2187,2179,2221,2180,2181]
+source          = [1611,1612,1613,1614,1615,1616,1617,1618,1620,1648,8204,8205,1619,1621,1631]
+destination     = [1907,1912,1909,1736,1734,1742,2188,2187,2179,2221,2180,2181,1559,1561,1562]
 transliteration = {s:d for s,d in zip(source, destination)}
 
 def _count_generator(reader,file):
@@ -62,10 +75,18 @@ def count_lines(file):
 def main():
 
     parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
-    parser.add_argument('input_file',  type=Path, help="Input file to transliterate.")
+    parser.add_argument('--input_file',  type=Path, help="Input file to transliterate.")
     parser.add_argument('--output_file', type=Path, help="Output file.")
+    parser.add_argument('--show_map', default=False, action="store_true", help="Show transliteration map and exit.")
     
     args = parser.parse_args()
+    if args.show_map:
+        #name_lines = [f"{unicodedata.name(chr(key))} -> {unicodedata.name(chr(transliteration[key]))}" for key in transliteration.keys()]
+        char_lines = [f"{chr(key)} -> {chr(transliteration[key])}" for key in transliteration.keys()]
+        pprint(char_lines)
+        exit(0)
+    
+    
     input_file = args.input_file
     
         
