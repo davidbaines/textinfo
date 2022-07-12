@@ -152,28 +152,27 @@ def main():
 #    print(output_file)
     
     with open(input_file, 'r', encoding='utf-8', newline='') as file_in:
+        
+        names = simple_solution(file_in)
+        pprint(names[0:9])
+        filtered_names = remove_first_only(names)
+        
         if args.output_file:
             output_file = Path(args.output_file)
             with open(output_file, 'w', encoding='utf-8', newline='') as file_out:
                 for line in file_in:
-                    file_out.write(find_names(line))
+                    file_out.write(f"{' '.join(filtered_name)}")
         else:
-            #punct = get_punctuation(input_file)
-            #punct_list = [p for p in get_punctuation(input_file).keys()]
-            #punct_str = ''.join(punct_list)
-                
-            #print(punct_list)
-            #print(punct_str)
-            
-            names = simple_solution(file_in)
-            pprint(names[0:9])
-            filtered_names = remove_first_only(names)
             for i, filtered_name in enumerate(filtered_names):
                 if filtered_name:
                     print(f"{i+1}  {' '.join(filtered_name)}") 
-                else:
-                    pass
-
+            
+    #punct = get_punctuation(input_file)
+    #punct_list = [p for p in get_punctuation(input_file).keys()]
+    #punct_str = ''.join(punct_list)
+        
+    #print(punct_list)
+    #print(punct_str)
     
 if __name__ == "__main__":
     main()
