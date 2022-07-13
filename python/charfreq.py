@@ -671,37 +671,51 @@ def get_character_data(char_counts,file = ""):
 def main():
 
     parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
-    parser.add_argument('--input_folder',  type=Path,                                   help="Folder to search", required=True)
-    parser.add_argument('--output_folder', type=Path,                                   help="Folder for the output results, default is the current folder.", required=False)
-    parser.add_argument('--extension',     type=str,  default="*",                     help="Specify which files to read by extension. Default is all file types.")
+    parser.add_argument('--input_folder',  type=Path,                                  help="Folder to search")
+    parser.add_argument('--output_folder', type=Path,                                  help="Folder for the output results, default is the current folder.", required=False)
+    parser.add_argument('--extension',     type=str,  default="txt",                   help="Specify which files to read by extension. Default is all file types.")
+    parser.add_argument('--input_files',   nargs="+", default=[],                      help="Files to read. Ignores input folder and extension argument.")
     parser.add_argument("--summary",       type=str,  default="character_summary.csv", help="The filename for the summary csv file.")
     parser.add_argument("--full",          type=str,  default="character_report.csv",  help="The filename for the summary csv file.")
     
     args = parser.parse_args()
-   
-    input_folder  = args.input_folder
     
     if args.output_folder:
         output_folder = Path(args.output_folder)
     else: 
         output_folder = Path.cwd()
         
+    summary_csv_file = output_folder / args.summary
+    detail_csv_file  = output_folder / args.full
+   
+    if len(args.input_files) > 0:
+        files_found = sorted([Path(file) for file in args.input_files])
+        print("Found the following files:")
+        for file in files_found:
+            print(file)
+        
+    elif args.input_folder:
+        input_folder = args.input_folder
+        extension    = args.extension
+        
+        path_split = Path(input_folder).parts
+        folder = path_split[-1]
+        
+        #root_Path = Path(root)
+        pattern = "".join([r"**\*.", extension])
+        files_found = sorted(input_folder.glob(pattern))
+        print(f"Found {len(files_found)} files with .{extension} extension in {input_folder}")
+
+    else :
+        print("Either input_folder or input_files must be specified.")
+        exit(0)
+
+
+        
     #print(input_folder)
     #print(output_folder)
    
-    extension = args.extension
-    summary_csv_file = output_folder / args.summary
-    detail_csv_file  = output_folder / args.full
-
-    path_split = Path(input_folder).parts
-    folder = path_split[-1]
     
-    #root_Path = Path(root)
-
-    pattern = "".join([r"**\*.", extension])
-    files_found = sorted(input_folder.glob(pattern))
-
-    print(f"Found {len(files_found)} files with .{extension} extension in {input_folder}")
     
     #Keep a list of the files we've read.
     files_read = []
@@ -740,6 +754,7 @@ def main():
         char_counter = count_chars(file)
 
         #Update the total character counts for all files.
+        #Could do this at the end, or just have a spreadsheet to do it.
         all_chars.update(char_counter)
 
         #List of dictionaries (one per char) with info.
@@ -754,6 +769,8 @@ def main():
             with open(detail_csv_file, 'w', encoding='utf-8', newline='') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=column_headers)
                 writer.writeheader()
+                
+                # And write the data for the first file
                 for char_dict in chars_list:
                     writer.writerow(char_dict)
                     
