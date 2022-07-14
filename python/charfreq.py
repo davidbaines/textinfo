@@ -9,10 +9,10 @@ import unicodedata
 
 from collections import Counter
 from datetime import datetime as dt
+import math
 from operator import itemgetter
 from collections import OrderedDict
 from pathlib import Path
-from tqdm import tqdm
 
 script_data = {
     "names": ['Common', 'Latin', 'Greek', 'Cyrillic', 'Armenian', 'Hebrew', 'Arabic',
@@ -672,8 +672,8 @@ def main():
 
     parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
     parser.add_argument('--input_folder',  type=Path,                                  help="Folder to search")
-    parser.add_argument('--output_folder', type=Path,                                  help="Folder for the output results, default is the current folder.", required=False)
-    parser.add_argument('--extension',     type=str,  default="txt",                   help="Specify which files to read by extension. Default is all file types.")
+    parser.add_argument('--output_folder', type=Path,                                  help="Folder for the output results. The default is the current folder.", required=False)
+    parser.add_argument('--extension',     type=str,  default="txt",                   help="Specify which files to read by extension. The default is 'txt'.")
     parser.add_argument('--input_files',   nargs="+", default=[],                      help="Files to read. Ignores input folder and extension argument.")
     parser.add_argument("--summary",       type=str,  default="character_summary.csv", help="The filename for the summary csv file.")
     parser.add_argument("--full",          type=str,  default="character_report.csv",  help="The filename for the summary csv file.")
@@ -707,16 +707,12 @@ def main():
         print(f"Found {len(files_found)} files with .{extension} extension in {input_folder}")
 
     else :
-        print("Either input_folder or input_files must be specified.")
+        print("Either --input_folder or --input_files must be specified.")
         exit(0)
-
-
-        
-    #print(input_folder)
-    #print(output_folder)
-   
     
-    
+    update_every = int(math.floor(math.log10(len(files_found))))
+    print(f"Found {len(files_found)} files will update every {update_every} files.")
+       
     #Keep a list of the files we've read.
     files_read = []
 
@@ -735,18 +731,22 @@ def main():
     then = dt.now()
 
     filecount = 0
-
-    for file in tqdm(files_found):
+    sys.stdout.flush()
+    
+    for file in files_found:
         # _________________________This section just for feedback ___________________________
+
         count += 1
         filesize = os.path.getsize(file)
         files_size += filesize
 
-        if not (count % 500):
+        if not (count % update_every):
            print("Reading {}th file: {}".format(count, file))
+           sys.stdout.flush()
            time_taken = dt.now() - then
            seconds = int(max(time_taken.total_seconds(), 1))
            print(f"It took {seconds} seconds to process {files_size} bytes. Ave: {int(files_size / (seconds*1024))} b/second.\n")
+           sys.stdout.flush()
            then = dt.now()
         # _________________________This section just for feedback ___________________________
 
