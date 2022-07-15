@@ -7,7 +7,7 @@ Keep the names on the same line as they were found, write them to a file.
 1) Simplest solution: Save every word that begins with an uppercase letter.
 2) Find words that only appear capitalized at the start of a sentence. Remove those. 
 3) Provide options for how to deal with punctuation.
-
+4) Read a config file containing pairs of files. Create a comparison of title case words for each pair.
 """
 
 import argparse
@@ -17,6 +17,7 @@ from pathlib import Path
 from pprint import pprint
 import re
 import string
+import yaml
 
 """
 These are the Unicode Categories.
@@ -55,23 +56,34 @@ Code	Description
 
 """
 
-def simple_solution(file):
+def names1(file_in):
 
     names = []
-    for line in file:
-        line = line.strip("\r\n")
-        
-        words = strip_punct(line)
-        names_on_line = [name for name in filter(is_name, words)]
-        names.append(names_on_line)
-        
-        #print(f"\nLine:  {line}")
-        #print(f"Words: {words}")
-        #print(f"Names: {names_on_line}")
+    with open(file_in, 'r', encoding='utf-8', newline='') as file:
+        for line in file:
+            line = line.strip("\r\n")
+            words = strip_punct(line)
+            
+            names_on_line = [name for name in filter(is_name, words)]
+            names.append(names_on_line)
+                    
+            #print(f"\nLine:  {line}")
+            #print(f"Words: {words}")
+            #print(f"Names: {names_on_line}")
 
     return names
 
+def get_titlecase_words(file_in):
 
+    names = []
+    with open(file_in, 'r', encoding='utf-8', newline='') as file:
+        for line in file:
+            line = line.strip("\r\n")
+            names.append([word for word in strip_punct(line) if word[0].isupper()])
+        
+    return names
+    
+    
 def strip_punct(line):
 
     stripped = []
@@ -106,7 +118,8 @@ def find_names(line):
     
 def is_name(word):
     return word[0].isupper()
-    
+
+ 
 
 def remove_first_only(names):
     first_count = Counter()
@@ -142,31 +155,35 @@ def main():
 
     parser = argparse.ArgumentParser(description="Write file that contains only certain words from the input file. Maintain lines")
     parser.add_argument('input_file',  type=Path, help="Input file to read.")
+    parser.add_argument('input_config',  type=Path, help="Find the config.yaml file with list of files to read.")
     parser.add_argument('--output_file', type=Path, help="Output file for words found.")
     parser.add_argument('--report_file', type=Path, help="Specify where to write a summary file.", required = False)
     
     args = parser.parse_args()
+    
+    if args.input_config:
+    
+    
     input_file = args.input_file
     
 #    print(input_file)  
 #    print(output_file)
     
-    with open(input_file, 'r', encoding='utf-8', newline='') as file_in:
+    title_case_words = get_titlecase_words(input_file)
         
-        names = simple_solution(file_in)
-        #pprint(names[0:9])
-        filtered_names = remove_first_only(names)
-        
-        if args.output_file:
-            output_file = Path(args.output_file)
-            print(f"Writing {output_file}")
-            with open(output_file, 'w', encoding='utf-8', newline='\n') as file_out:
-                for filtered_name in filtered_names:
-                    file_out.write(f"{' '.join(filtered_name)}\n")
-        else:
-            for i, filtered_name in enumerate(filtered_names):
-                if filtered_name:
-                    print(f"{i+1}  {' '.join(filtered_name)}") 
+    #filtered_names = remove_first_only(names)
+    filtered_names = title_case_words
+    
+    if args.output_file:
+        output_file = Path(args.output_file)
+        print(f"Writing {output_file}")
+        with open(output_file, 'w', encoding='utf-8', newline='\n') as file_out:
+            for filtered_name in filtered_names:
+                file_out.write(f"{' '.join(filtered_name)}\n")
+    else:
+        for i, filtered_name in enumerate(filtered_names):
+            if filtered_name:
+                print(f"{i+1}  {' '.join(filtered_name)}") 
 
     #punct = get_punctuation(input_file)
     #punct_list = [p for p in get_punctuation(input_file).keys()]

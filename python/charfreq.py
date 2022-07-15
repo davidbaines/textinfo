@@ -8,8 +8,7 @@ import sys
 import unicodedata
 
 from collections import Counter
-from datetime import datetime as dt
-import math
+import datetime as dt
 from operator import itemgetter
 from collections import OrderedDict
 from pathlib import Path
@@ -667,6 +666,7 @@ def get_character_data(char_counts,file = ""):
         c = unicode_data(char,count,file)
         character_data.append(c)
     return character_data
+    
 
 def main():
 
@@ -709,10 +709,7 @@ def main():
     else :
         print("Either --input_folder or --input_files must be specified.")
         exit(0)
-    
-    update_every = int(math.floor(math.log10(len(files_found))))
-    print(f"Found {len(files_found)} files will update every {update_every} files.")
-       
+          
     #Keep a list of the files we've read.
     files_read = []
 
@@ -728,28 +725,14 @@ def main():
 
     count = 0
     files_size = 0
-    then = dt.now()
+    then = dt.datetime.now()
 
     filecount = 0
     sys.stdout.flush()
+    update_freq = 3  # How many minutes to wait between updates.
     
     for file in files_found:
-        # _________________________This section just for feedback ___________________________
-
-        count += 1
-        filesize = os.path.getsize(file)
-        files_size += filesize
-
-        if not (count % update_every):
-           print("Reading {}th file: {}".format(count, file))
-           sys.stdout.flush()
-           time_taken = dt.now() - then
-           seconds = int(max(time_taken.total_seconds(), 1))
-           print(f"It took {seconds} seconds to process {files_size} bytes. Ave: {int(files_size / (seconds*1024))} b/second.\n")
-           sys.stdout.flush()
-           then = dt.now()
-        # _________________________This section just for feedback ___________________________
-
+        
         # Count all characters in this file (Counter).
         char_counter = count_chars(file)
 
@@ -779,6 +762,28 @@ def main():
                 writer = csv.DictWriter(csvfile, fieldnames=column_headers)
                 for char_dict in chars_list:
                     writer.writerow(char_dict)
+        # _________________________This section just for feedback ___________________________
+
+        count += 1
+        filesize = os.path.getsize(file)
+        files_size += filesize
+        time_taken = dt.datetime.now() - then
+        seconds = int(max(time_taken.total_seconds(), 1))
+        
+        if count < 11:
+           print(f"Reading file {count} : {file}")
+           print(f"It took {seconds} seconds to process {files_size} bytes. Ave: {int(files_size / (seconds*1024))} b/second.\n")
+           then = dt.datetime.now()
+           
+        elif count > 10 and time_taken > dt.timedelta(minutes=update_freq):
+           print(f"Reading file {count} : {file}")
+           print(f"It took {seconds} seconds to process {files_size} bytes. Ave: {int(files_size / (seconds*1024))} b/second.\n")
+           then = dt.datetime.now()
+        if count == 10:   
+            print(f"Will update on progress every {update_freq} minutes.")
+        sys.stdout.flush()
+        # _________________________This section just for feedback ___________________________
+        
     print(f'Wrote detailed csv file to {detail_csv_file}')
 
     all_char_data = get_character_data(all_chars)
