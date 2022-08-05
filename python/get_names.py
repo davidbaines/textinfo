@@ -11,40 +11,7 @@ import unicodedata
 from pathlib import Path
 import re
 import string_utils
-#import has_sentence_ending
 
-def write_csv(outfile, row_data, column_headers=[], overwrite=False):
-    """Write the data to a csv file.
-    If column headers are defined overwrite any existing file, so that the column headings are only written once
-    at the top of the file.
-    If there are no column headers defined then append the rows to an(y) existing file.
-    """
-
-    if overwrite:
-        with open(outfile, "w", encoding="utf-8", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(column_headers)
-            writer.writerows(row_data)
-    else:
-        with open(outfile, "a", encoding="utf-8", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerows(row_data)
-    print(f"Wrote csv file to {outfile}")
-    return None
-
-
-def strip_punct(line):
-
-    stripped = []
-    words = line.split()
-    for word in words:
-        result = ""
-        for char in word:
-            if unicodedata.category(char)[0] == "L":
-                result = result + char
-        if result:
-            stripped.append(result)
-    return stripped
 
 def get_names(line):
 
