@@ -75,13 +75,13 @@ def names1(file_in):
 
 def get_titlecase_words(file_in):
 
-    names = []
+    tc_words = []
     with open(file_in, 'r', encoding='utf-8', newline='') as file:
         for line in file:
             line = line.strip("\r\n")
-            names.append([word for word in strip_punct(line) if word[0].isupper()])
+            tc_words.append([word for word in strip_punct(line) if word[0].isupper()])
         
-    return names
+    return tc_words
     
     
 def strip_punct(line):
