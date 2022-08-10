@@ -1,0 +1,14 @@
+import os
+import csv
+import pandas as pd
+
+name=[]
+with open("extract.csv","w", encoding='utf-8') as out:
+    for filename in os.listdir("D:/trabina/data/by-lang"):
+        with open(os.path.join("D:/trabina/data/by-lang",filename), "r", encoding='utf-8') as src:
+            out.write(filename)# first line is the filename
+            out.write('\n')
+            names=src.readlines()
+            print(names)
+            for name in names:
+              out.write(name)
