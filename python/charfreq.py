@@ -566,7 +566,7 @@ script_data = {
         (0xe0020, 0xe007f, 0, 13), (0xe0100, 0xe01ef, 40, 23)
     ]}
 
-def count_chars(filename):
+def count_chars_mp(filename):
     ''' The main function of char_freq is to count the number of times each character appears in files.
         This function reads a single file and returns a Counter for the characters in the file.
         The function only reads utf-8 files. Any non UTF-8 files will throw an error.
@@ -574,12 +574,13 @@ def count_chars(filename):
     #print("count_chars entered!\n")
     #print(f"Processing file: {filename}")
     char_count = Counter()
+    
     with open(filename, 'r', encoding='utf-8') as infile:
             lines = infile.readlines()
             for lineno, line in enumerate(lines):
                 char_count.update(line)
 
-    return char_count
+    return {filename:char_count}
 
 def script(char):
     """ Return the script associated with the unicode character. """
@@ -670,7 +671,7 @@ def get_character_data(char_counts,file = ""):
     
 
 def main():
-
+    
     parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
     parser.add_argument('--input_folder',  type=Path,                                  help="Folder to search")
     parser.add_argument('--output_folder', type=Path,                                  help="Folder for the output results. The default is the current folder.", required=False)
@@ -688,7 +689,8 @@ def main():
         
     summary_csv_file = output_folder / args.summary
     detail_csv_file  = output_folder / args.full
-   
+    csv.register_dialect('default')
+
     if len(args.input_files) > 0:
         files_found = sorted([Path(file) for file in args.input_files])
         print("Found the following files:")
@@ -711,32 +713,26 @@ def main():
         print("Either --input_folder or --input_files must be specified.")
         exit(0)
           
-    #Keep a list of the files we've read.
-    files_read = []
-
-    #Keep a dictionary of character counters for with filename as key.
-    files_char_data = dict()
-    files = list()
-    all_char_data = list()
-
+    no_of_cpu = 20
+    print(f"Number of processors: {mp.cpu_count()} using {no_of_cpu}")
+    pool = mp.Pool(no_of_cpu)
+    
     #Keep a running total of the characters seen across all files.
     all_chars = Counter()
 
-    csv.register_dialect('default')
-
-    count = 0
-    files_size = 0
-    then = dt.datetime.now()
-
     filecount = 0
     sys.stdout.flush()
-    update_freq = 3  # How many minutes to wait between updates.
     
-    for file in files_found:
+    # Iterate over files_found with multiple processors.
+    results = [pool.map(count_chars_mp, [file for file in files_found][:2])]
+    #print(results)
+    pool.close()
+    print(results, type(results), len(results) )     
+    print("\n")
+    
+    for result in results:
+        print(result.keys())    
         
-        # Count all characters in this file (Counter).
-        char_counter = count_chars(file)
-
         #Update the total character counts for all files.
         #Could do this at the end, or just have a spreadsheet to do it.
         all_chars.update(char_counter)
@@ -763,27 +759,6 @@ def main():
                 writer = csv.DictWriter(csvfile, fieldnames=column_headers)
                 for char_dict in chars_list:
                     writer.writerow(char_dict)
-        # _________________________This section just for feedback ___________________________
-
-        count += 1
-        filesize = os.path.getsize(file)
-        files_size += filesize
-        time_taken = dt.datetime.now() - then
-        seconds = int(max(time_taken.total_seconds(), 1))
-        
-        if count < 11:
-           print(f"Reading file {count} : {file}")
-           print(f"It took {seconds} seconds to process {files_size} bytes. Ave: {int(files_size / (seconds*1024))} b/second.\n")
-           then = dt.datetime.now()
-           
-        elif count > 10 and time_taken > dt.timedelta(minutes=update_freq):
-           print(f"Reading file {count} : {file}")
-           print(f"It took {seconds} seconds to process {files_size} bytes. Ave: {int(files_size / (seconds*1024))} b/second.\n")
-           then = dt.datetime.now()
-        if count == 10:   
-            print(f"Will update on progress every {update_freq} minutes.")
-        sys.stdout.flush()
-        # _________________________This section just for feedback ___________________________
         
     print(f'Wrote detailed csv file to {detail_csv_file}')
 
