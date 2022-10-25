@@ -724,14 +724,18 @@ def main():
     sys.stdout.flush()
     
     # Iterate over files_found with multiple processors.
-    results = [pool.map(count_chars_mp, [file for file in files_found][:2])]
-    #print(results)
+    results = pool.map(count_chars_mp, [file for file in files_found][:2])
+    
     pool.close()
     print(results, type(results), len(results) )     
-    print("\n")
+    #print("\n")
     
     for result in results:
-        print(result.keys())    
+
+        print("These are the results:")
+        print(result)
+        print(result.type())    
+        print(len(result))
         
         #Update the total character counts for all files.
         #Could do this at the end, or just have a spreadsheet to do it.
