@@ -594,7 +594,7 @@ def count_words(filename):
                 words = line.replace("\t"," ").replace("\r", "").replace("\n","").split(" ")
                 words = [word for word in words if word != '']
                 if words:
-                    print(words)
+                    #print(words)
                     word_count.update([(word) for word in words])
 
     return word_count
