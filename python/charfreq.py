@@ -2,16 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+from   collections import Counter
+from   collections import OrderedDict
 import csv
+import datetime as dt
+import multiprocessing as mp
+from   operator import itemgetter
 import os
+from   pathlib import Path
 import sys
 import unicodedata
 
-from collections import Counter
-import datetime as dt
-from operator import itemgetter
-from collections import OrderedDict
-from pathlib import Path
 
 script_data = {
     "names": ['Common', 'Latin', 'Greek', 'Cyrillic', 'Armenian', 'Hebrew', 'Arabic',
