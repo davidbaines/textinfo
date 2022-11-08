@@ -570,6 +570,7 @@ def count_chars_mp(filename):
     ''' The main function of char_freq is to count the number of times each character appears in files.
         This function reads a single file and returns a Counter for the characters in the file.
         The function only reads utf-8 files. Any non UTF-8 files will throw an error.
+        Characters in the lines containing only the "<range>" marker are not counted.
     '''
     #print("count_chars entered!\n")
     #print(f"Processing file: {filename}")
@@ -578,7 +579,8 @@ def count_chars_mp(filename):
     with open(filename, 'r', encoding='utf-8') as infile:
             lines = infile.readlines()
             for lineno, line in enumerate(lines):
-                char_count.update(line)
+                if not line.strip() == "<range>":
+                    char_count.update(line)
 
     return {filename:char_count}
 
@@ -615,15 +617,16 @@ def unicode_data(character,count,file=""):
         c["name"] = "No name found."
 
     #Remove charatcers that mess up the CSV output - replace with a space.
-    if character in ["	","\t",]  or ord(character) == 9:
+    if character in ["	","\t", "\n", "\r", ","]  or ord(character) == 9:
         c["char"] = ' '
         c["name"] = " CHARACTER TABULATION"
     elif character == "," or ord(character) == 44:
         c["char"] = ' '
+        c["name"] = "COMMA"
     elif character == "\n" or ord(character) == 10:
         c["char"] = ' '
         c["name"] = "END OF LINE"
-    elif ord(character) == 13:
+    elif character == "\r" or ord(character) == 13:
         c["char"] = ' '
         c["name"] = "CARRIAGE RETURN"
 
@@ -636,7 +639,7 @@ def unicode_data(character,count,file=""):
     c["mirrored"] = unicodedata.mirrored(character)
     if file:
         c["filename"] = file
-    c["char"] = " " + character + " "
+    #c["char"] = " " + character + " "
     return c
 
 def write_csv(outfile, row_data, column_headers = [], overwrite = False):
@@ -680,6 +683,14 @@ def main():
     parser.add_argument("--summary",       type=str,  default="character_summary.csv", help="The filename for the summary csv file.")
     parser.add_argument("--full",          type=str,  default="character_report.csv",  help="The filename for the summary csv file.")
     
+    # Command line to count characters in eBible
+    # python charfreq.py --input_folder F:\GitHub\davidbaines\eBible\corpus --output_folder F:\GitHub\davidbaines\eBible\metadata 
+
+    # Command line to count characters in Paratext extracts
+    # python charfreq.py --input_folder "G:\Shared drives\Partnership for Applied Biblical NLP\Data\Corpora\Paratext_extracts_2022_11_03" --output_folder "G:\Shared drives\Partnership for Applied Biblical NLP\Data\Corpora\Paratext_metadata"
+
+    #
+    #python charfreq.py --input_folder F:\Corpora --output_folder F:\Corpora 
     args = parser.parse_args()
     
     if args.output_folder:
@@ -727,48 +738,51 @@ def main():
     results = pool.map(count_chars_mp, [file for file in files_found][:2])
     
     pool.close()
-    print(results, type(results), len(results) )     
-    #print("\n")
+    #print(results, "\n" , type(results), "\n", len(results) )     
+    #print(f"There are {len(results)} results\n")
     
     for result in results:
 
-        print("These are the results:")
-        print(result)
-        print(result.type())    
-        print(len(result))
+    #    print("This is a single result:")
+    #    print(result)
+    #    print(f"result is a :{type(result)}")
+        for item in result.items():
+            file, char_counter = item
+    #        print(f"{file}, {char_counter}\n")
         
-        #Update the total character counts for all files.
-        #Could do this at the end, or just have a spreadsheet to do it.
-        all_chars.update(char_counter)
-
-        #List of dictionaries (one per char) with info.
-        chars_list = get_character_data(char_counter,file)
-
-        #Write out the data for this file to the detailled csv file
-        filecount += 1
-        if filecount == 1:          #If it is the first writing then write the column headers.
-            # Set column headers
-            column_headers = chars_list[0].keys()
-            
-            with open(detail_csv_file, 'w', encoding='utf-8', newline='') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=column_headers)
-                writer.writeheader()
                 
-                # And write the data for the first file
-                for char_dict in chars_list:
-                    writer.writerow(char_dict)
+            #Update the total character counts for all files.
+            all_chars.update(char_counter)
+
+            #List of dictionaries (one per char) with info.
+            chars_list = get_character_data(char_counter,file)
+
+            #Write out the data for this file to the detailled csv file
+            filecount += 1
+            if filecount == 1:          #If it is the first writing then write the column headers.
+                # Set column headers
+                column_headers = chars_list[0].keys()
+                
+                with open(detail_csv_file, 'w', encoding='utf-8', newline='') as csvfile:
+                    writer = csv.DictWriter(csvfile, fieldnames=column_headers)
+                    writer.writeheader()
                     
-        else :                      #For subsequent files just write the data.
-            with open(detail_csv_file, 'a', encoding='utf-8', newline='') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=column_headers)
-                for char_dict in chars_list:
-                    writer.writerow(char_dict)
-        
+                    # And write the data for the first file
+                    for char_dict in chars_list:
+                        writer.writerow(char_dict)
+                        
+            else :                      #For subsequent files just write the data.
+                with open(detail_csv_file, 'a', encoding='utf-8', newline='') as csvfile:
+                    writer = csv.DictWriter(csvfile, fieldnames=column_headers)
+                    for char_dict in chars_list:
+                        writer.writerow(char_dict)
+            
     print(f'Wrote detailed csv file to {detail_csv_file}')
 
     all_char_data = get_character_data(all_chars)
     column_headers = all_char_data[0].keys()
     write_csv(summary_csv_file, all_char_data, column_headers, overwrite=True)
+    print(f'Wrote summary csv file to {summary_csv_file}')
 
 if __name__ == "__main__":
     main()
