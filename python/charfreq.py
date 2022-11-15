@@ -730,7 +730,7 @@ def main():
         
         #root_Path = Path(root)
         pattern = "".join([r"**\*.", extension])
-        files_found = sorted(input_folder.glob(pattern))
+        files_found = sorted(input_folder.glob(pattern))[:2000]
         print(f"Found {len(files_found)} files with .{extension} extension in {input_folder}")
 
     else :
@@ -748,7 +748,7 @@ def main():
     sys.stdout.flush()
     
     # Iterate over files_found with multiple processors.
-    results = pool.map(count_chars_mp, [(file , tokens) for file in files_found][:2])
+    results = pool.map(count_chars_mp, [(file , tokens) for file in files_found])
     
     pool.close()
     #print(results, "\n" , type(results), "\n", len(results) )     
@@ -772,9 +772,9 @@ def main():
             filecount += 1
             if filecount == 1:          #If it is the first writing then write the column headers.
                 # Set column headers
-                column_headers = list(chars_list[0].keys())
-                column_headers.append(input_folder)
-
+                chars_list[0][input_folder] = ''
+                column_headers = chars_list[0].keys()
+                
                 with open(detail_csv_file, 'w', encoding='utf-8', newline='') as csvfile:
                     writer = csv.DictWriter(csvfile, fieldnames=column_headers)
                     writer.writeheader()
