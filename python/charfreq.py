@@ -12,7 +12,7 @@ import os
 from   pathlib import Path
 import sys
 import unicodedata
-
+global tokens
 
 script_data = {
     "names": ['Common', 'Latin', 'Greek', 'Cyrillic', 'Armenian', 'Hebrew', 'Arabic',
@@ -566,21 +566,31 @@ script_data = {
         (0xe0020, 0xe007f, 0, 13), (0xe0100, 0xe01ef, 40, 23)
     ]}
 
-def count_chars_mp(filename):
+def remove_tokens(line, tokens):
+    for token in tokens:
+        line = line.replace(token, '')
+    return line
+
+def count_chars_mp(parameters):
     ''' The main function of char_freq is to count the number of times each character appears in files.
         This function reads a single file and returns a Counter for the characters in the file.
         The function only reads utf-8 files. Any non UTF-8 files will throw an error.
         Characters in the lines containing only the "<range>" marker are not counted.
     '''
+    filename , tokens = parameters
     #print("count_chars entered!\n")
     #print(f"Processing file: {filename}")
     char_count = Counter()
-    
     with open(filename, 'r', encoding='utf-8') as infile:
-            lines = infile.readlines()
-            for lineno, line in enumerate(lines):
-                if not line.strip() == "<range>":
-                    char_count.update(line)
+        lines = infile.readlines()
+        
+        if len(tokens) == 0:
+            for line in lines:
+                char_count.update(line)
+        else:
+            for line in lines:
+                no_token_line = remove_tokens(line,tokens)
+                char_count.update(no_token_line)
 
     return {filename:char_count}
 
@@ -676,12 +686,13 @@ def get_character_data(char_counts,file = ""):
 def main():
     
     parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
-    parser.add_argument('--input_folder',  type=Path,                                  help="Folder to search")
-    parser.add_argument('--output_folder', type=Path,                                  help="Folder for the output results. The default is the current folder.", required=False)
-    parser.add_argument('--extension',     type=str,  default="txt",                   help="Specify which files to read by extension. The default is 'txt'.")
-    parser.add_argument('--input_files',   nargs="+", default=[],                      help="Files to read. Ignores input folder and extension argument.")
-    parser.add_argument("--summary",       type=str,  default="character_summary.csv", help="The filename for the summary csv file.")
-    parser.add_argument("--full",          type=str,  default="character_report.csv",  help="The filename for the summary csv file.")
+    parser.add_argument('--input_folder',  type=Path,                                                help="Folder to search")
+    parser.add_argument('--output_folder', type=Path,                                                help="Folder for the output results. The default is the current folder.", required=False)
+    parser.add_argument('--extension',     type=str,            default="txt",                       help="Specify which files to read by extension. The default is 'txt'.")
+    parser.add_argument('--input_files',   nargs="+",           default=[],                          help="Files to read. Ignores input folder and extension argument.")
+    parser.add_argument('--split_token',   action="store_true", default=False,                       help="Count the indiviual characters in the <range> token.")
+    parser.add_argument("--summary",       type=str,            default="character_summary.csv",     help="The filename for the summary csv file.")
+    parser.add_argument("--full",          type=str,            default="character_report.csv",      help="The filename for the summary csv file.")
     
     # Command line to count characters in eBible
     # python charfreq.py --input_folder F:\GitHub\davidbaines\eBible\corpus --output_folder F:\GitHub\davidbaines\eBible\metadata 
@@ -692,12 +703,15 @@ def main():
     #
     #python charfreq.py --input_folder F:\Corpora --output_folder F:\Corpora 
     args = parser.parse_args()
-    
+    split_token = args.split_token
+
+    tokens = [] if split_token else ["<range>"]
+        
     if args.output_folder:
         output_folder = Path(args.output_folder)
     else: 
         output_folder = Path.cwd()
-        
+    
     summary_csv_file = output_folder / args.summary
     detail_csv_file  = output_folder / args.full
     csv.register_dialect('default')
@@ -735,7 +749,7 @@ def main():
     sys.stdout.flush()
     
     # Iterate over files_found with multiple processors.
-    results = pool.map(count_chars_mp, [file for file in files_found][:2])
+    results = pool.map(count_chars_mp, [(file , tokens) for file in files_found][:2])
     
     pool.close()
     #print(results, "\n" , type(results), "\n", len(results) )     
