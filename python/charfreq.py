@@ -2,16 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-from   collections import Counter
-from   collections import OrderedDict
 import csv
 import datetime as dt
 import multiprocessing as mp
-from   operator import itemgetter
 import os
-from   pathlib import Path
 import sys
 import unicodedata
+from collections import Counter, OrderedDict
+from operator import itemgetter
+from pathlib import Path
+
 global tokens
 
 script_data = {
@@ -647,8 +647,8 @@ def unicode_data(character,count,file=""):
     c["combining"] = unicodedata.combining(character)
     c["eaw"] = unicodedata.east_asian_width(character)
     c["mirrored"] = unicodedata.mirrored(character)
-    if file:
-        c["filename"] = file
+    if not file == "" :
+        c["filename"] = file.name
     #c["char"] = " " + character + " "
     return c
 
@@ -656,7 +656,7 @@ def write_csv(outfile, row_data, column_headers = [], overwrite = False):
     '''Write the data to a csv file.
     If column headers are defined overwrite any existing file, so that the column headings are only written once
     at the top of the file.
-    If there are no column headers defined then append the rows to an(y) existing file.
+    If there are no column headers defined then append the rows if there is an existing file.
     '''
     if not column_headers:
         column_headers = row_data.keys()
@@ -670,10 +670,9 @@ def write_csv(outfile, row_data, column_headers = [], overwrite = False):
         with open(outfile, 'a', encoding='utf-8', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=column_headers)
             writer.writerows(row_data)
-    print(f'Wrote csv file to {outfile}')
     return None
 
-def get_character_data(char_counts,file = ""):
+def get_character_data(char_counts,file=""):
     """ Given a Counter that has counted the occurrences of characters, return a list of dictionaries with
     lots of data about the characters."""
     character_data = []
@@ -762,10 +761,8 @@ def main():
     #    print(f"result is a :{type(result)}")
         for item in result.items():
             file, char_counter = item
-    #        print(f"{file}, {char_counter}\n")
-        
-                
-            #Update the total character counts for all files.
+            # print(f"{file}, {char_counter}\n")
+            # Update the total character counts for all files.
             all_chars.update(char_counter)
 
             #List of dictionaries (one per char) with info.
@@ -775,8 +772,9 @@ def main():
             filecount += 1
             if filecount == 1:          #If it is the first writing then write the column headers.
                 # Set column headers
-                column_headers = chars_list[0].keys()
-                
+                column_headers = list(chars_list[0].keys())
+                column_headers.append(input_folder)
+
                 with open(detail_csv_file, 'w', encoding='utf-8', newline='') as csvfile:
                     writer = csv.DictWriter(csvfile, fieldnames=column_headers)
                     writer.writeheader()
