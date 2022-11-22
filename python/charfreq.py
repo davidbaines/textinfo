@@ -730,7 +730,7 @@ def main():
         
         #root_Path = Path(root)
         pattern = "".join([r"**\*.", extension])
-        files_found = sorted(input_folder.glob(pattern))[:2000]
+        files_found = sorted(input_folder.glob(pattern))
         print(f"Found {len(files_found)} files with .{extension} extension in {input_folder}")
 
     else :

@@ -10,11 +10,13 @@
 
 from collections import Counter
 from csv import DictWriter
+import multiprocessing as mp
 from pathlib import Path
 import re
 from sacremoses import MosesPunctNormalizer
 from typing import IO, Iterable, Iterator, List, Optional, Tuple, cast, Sequence
 from tqdm import tqdm
+
 
 mpn = MosesPunctNormalizer()
 mpn.substitutions = [(re.compile(r), sub) for r, sub in mpn.substitutions]
@@ -68,7 +70,7 @@ def alt_count_unknowns(tokenized_file,detokenized_file,token):
             if tokens_found:
                 
                 #Remove known characters from detok line:
-                unknown_chars = remove_chars(mpn.normalize(detok_line), mpn.normalize(tok_line))
+                unknown_chars = remove_chars(mpn.normalize(detok_line), tok_line)
                 if len(unknown_chars) == len(tokens_found):
                     unknowns.update(unknown_chars)
                 else :
@@ -81,6 +83,22 @@ def alt_count_unknowns(tokenized_file,detokenized_file,token):
                 
     return unknowns
 
+def second_alt_count_unknowns(arguments):
+    tokenized_file,detokenized_file,token = arguments
+
+    with open(tokenized_file, "r", encoding='utf-8') as tok, open(detokenized_file, "r", encoding='utf-8') as detok:
+        tok_lines = tok.readlines()
+        detok_lines = detok.readlines()
+
+        tok_char = set()
+        detok_char = set()
+
+        for tok_line, detok_line in zip(tok_lines,detok_lines):
+            tok_strings = tok_line.split(token)
+            for tok_string in tok_strings:
+                tok_char += tok_strings
+            
+                
 
 def main():
 
