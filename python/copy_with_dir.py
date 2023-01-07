@@ -26,18 +26,13 @@ for file_pattern in file_patterns:
                     #print(f"Dest is now: {new_dest}")
 
                 # Make the folders required if necessary
-                if not new_dest.is_dir():                 
+                if not new_dest.is_dir():
+                    print(f"Creating folder:  {new_dest}")
                     new_dest.mkdir(parents=True, exist_ok=True)
-                    destination_file = new_dest / file.name
 
-                    # Write an exact copy of the file from the source to the new destitation folder.
-                    print(f"Writing:  {destination_file}")
-                    shutil.copyfile(file, destination_file)
-                else:
-                    destination_file = new_dest / file.name
-                    if not destination_file.is_file():
-
-                    # Write an exact copy of the file from the source to the new destitation folder.
+                # Write an exact copy of the file from the source to the new destination folder if necessary.
+                if not destination_file.is_file():
+                    
                     print(f"Writing:  {destination_file}")
                     shutil.copyfile(file, destination_file)
 
