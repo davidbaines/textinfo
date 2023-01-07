@@ -2,7 +2,9 @@ from pathlib import Path
 #from tqdm import tqdm as tqdm
 import shutil
 
-source = Path("S:/MT/experiments/BT-English")
+
+
+source = Path("S:/MT/experiments/BT-Arabic-NLLB")
 dest_root = Path("E:/Work/MT/experiments")
 
 top_shared_folder_name = "MT"
@@ -29,10 +31,11 @@ for file_pattern in file_patterns:
                 if not new_dest.is_dir():
                     print(f"Creating folder:  {new_dest}")
                     new_dest.mkdir(parents=True, exist_ok=True)
+                
+                destination_file = new_dest / file.name
 
                 # Write an exact copy of the file from the source to the new destination folder if necessary.
                 if not destination_file.is_file():
-                    
                     print(f"Writing:  {destination_file}")
                     shutil.copyfile(file, destination_file)
 
