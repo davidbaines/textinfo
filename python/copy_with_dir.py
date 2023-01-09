@@ -9,7 +9,8 @@ dest = Path(dest_folder_str)
 
 source_drive = "S:"
 dest_drive = "E:"
-subfolder = "BT-Tagalog-NLLB"
+subfolder = "BT-Spanish"
+infer_folder = "infer"
 
 test_source = source / subfolder
 
@@ -31,21 +32,33 @@ config_files = [file.with_name("config.yml") for file in scores_files]
 
 source_folders = sorted(set([file.parent for file in scores_files]))
 
+#infer_folders = []
+#for source_folder in source_folders:
+#    source_infer_folder = source_folder / infer_folder
+#    if source_infer_folder.is_dir():
+#        dest_infer_folder = dest / str(file_to_copy.parent)[len(source_folder_str) + 1:] / infer_folder
+#        print(f"Copying {source_infer_folder} to {dest_infer_folder}")
+#        #shutil.copytree(source_infer_folder ,dest_infer_folder)
+
 #effective_config_files = []
 #for source_folder in source_folders:
 #    for file in source_folder.glob("effective-config*.yml"):
 #        effective_config_files.append(file)
 
 effective_config_files = [file for source_folder in source_folders for file in source_folder.glob("effective-config*.yml")]
+inferred_files = [file for source_folder in source_folders for file in source_folder.rglob("*.sfm")]
 
 files_to_copy = scores_files
 files_to_copy.extend(config_files)
 files_to_copy.extend(effective_config_files)
+files_to_copy.extend(inferred_files)
 
 # Filter out existing files
 filtered_files_to_copy = []
 for file_to_copy in files_to_copy:
+    
     copy_to = dest / str(file_to_copy.parent)[len(source_folder_str) + 1:] / file_to_copy.name
+    print(f"Checking to see if {copy_to} exists: {copy_to.is_file()}.")
     if not copy_to.is_file():
         filtered_files_to_copy.append((file_to_copy, copy_to))
 
@@ -53,7 +66,7 @@ for file_to_copy in files_to_copy:
 
 
 print(f"Found {len(scores_files)} scores files in {test_source}.")
-print(scores_files)
+# print(scores_files)
 # print(f"Found {len(source_folders)} source folders.")
 # for source_folder in source_folders:
 #     print(source_folder)
