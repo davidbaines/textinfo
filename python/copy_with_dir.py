@@ -10,8 +10,10 @@ dest = Path(dest_folder_str)
 
 source_drive = "S:"
 dest_drive = "E:"
-subfolder = "BT-Arabic"
-subfolders = [folder for folder in source.glob("*") if folder.is_dir()]
+subfolder = "BT-English-NLLB"
+source_subfolder = source / subfolder
+
+subfolders = [folder for folder in source_subfolder.glob("*") if folder.is_dir()]
 print(f"There are {len(subfolders)} folders in {source}")
 
 infer_folder = "infer"
