@@ -54,7 +54,7 @@ def helper_function(infile, pattern, first_n=1):
 
 
 def get_data_from_process_log(experiment, data):
-    """ Useful data from preprocess log:
+    """Useful data from preprocess log:
     trainer_interface.cc(458) LOG(INFO) all chars count=2067370
     trainer_interface.cc(479) LOG(INFO) Alphabet size=80
     trainer_interface.cc(480) LOG(INFO) Final character coverage=1
@@ -116,35 +116,44 @@ def get_data_from_log(experiment, log, patterns):
     return experiment
 
 
-def get_config_data(config_file):
+def get_config_data(config_file, fieldnames):
     # It is best to pass an effective config file to this function as it will gather
     # more data about the experiment. Passing a config.yml file will collect only
     # the explicit settings and not the defaults that were used.
     #    print(f"Reading {config_file}")
 
     experiment = {
-        "config_file"  : str(config_file),
-        "experiment" : config_file.parent.name,
-        "folder"     : config_file.parent,
-        "series"     : config_file.parent.parent.name,
-        "complete"   : False,
-        "score best" : 0,
-        "score last" : 0,
+        "config_file": str(config_file),
+        "experiment": config_file.parent.name,
+        "folder": config_file.parent,
+        "series": config_file.parent.parent.name,
+        "complete": False,
+        "score best": 0,
+        "score last": 0,
     }
-    git_commit = re.match("effective-config-(.*).yml", config_file.name)
-    if git_commit:
-        # print(f"Found git_commit : {git_commit, git_commit[0], git_commit[1]}")
-        experiment["git_commit"] = git_commit[1]
+
+    if "git_commit" in fieldnames:
+        git_commit = re.match("effective-config-(.*).yml", config_file.name)
+        if git_commit:
+            # print(f"Found git_commit : {git_commit, git_commit[0], git_commit[1]}")
+            experiment["git_commit"] = git_commit[1]
 
     # print(f"Searching in {config_file}")
 
     with open(config_file, "r") as conf:
-        config = yaml.load(conf, Loader=yaml.SafeLoader)
+        try:
+            config = yaml.load(conf, Loader=yaml.SafeLoader)
+        except:
+            return None, None
+        # print(f"These are the details in config file {experiment['config']} ")
+        # for k,v in config['data'].items():
+        #    print(f"{k}: {v}")
+        # exit()
 
         if not "data" in config:
             # This probably isn't a config.yml file for one of our experiments.
-            experiment["experiment"] = "Invalid - no data section"
-            return experiment
+            # experiment["experiment"] = "Invalid - no data section"
+            return None, None
 
     #    pairs = config["data"]["corpus_pairs"]
     #    for i, pair in enumerate(pairs):
@@ -161,37 +170,76 @@ def get_config_data(config_file):
         "trg_casing",
         "mirror",
     ]:
-        if value in config["data"]:
+        if value in fieldnames and value in config["data"]:
             experiment[value] = config["data"][value]
         else:
             experiment[value] = None
+
+    # The NLLB models use 'model' instead of 'parent'
+    if "model" in config:
+        experiment["parent"] = config["model"]
+
+    if config["data"]["corpus_pairs"]:
+        # print(f"In config file {config_file}: data/corpus_pairs is:")
+        # print(config["data"]["corpus_pairs"], type(config["data"]["corpus_pairs"]))
+        for pair_count, corpus_pair in enumerate(config["data"]["corpus_pairs"], 1):
+
+            experiment[f"src {pair_count}"] = corpus_pair["src"]
+            experiment[f"trg {pair_count}"] = corpus_pair["trg"]
+
+            if type(corpus_pair["src"]) == type(list()) or type(
+                corpus_pair["trg"]
+            ) == type(list()):
+                return None, None
+                print(
+                    f"Config file {config_file} has a list of corpus_pairs:\n{corpus_pair}"
+                )
+                print(corpus_pair["src"], type(corpus_pair["src"]))
+
+            elif (
+                type(corpus_pair["src"]) == type("string")
+                and type(corpus_pair["trg"]) == type("string")
+                and pair_count == 1
+            ):
+                experiment["Source"] = corpus_pair["src"][
+                    : (corpus_pair["src"]).find("-")
+                ]
+                experiment["Target"] = corpus_pair["trg"][
+                    : (corpus_pair["trg"]).find("-")
+                ]
+
+        # print(f"There are {max_pairs} pairs.")
 
     # Add the terms settings to the experiment.
     # Typical terms are {'categories': 'PN', 'dictionary': False, 'include_glosses': True, 'train': False}
     # Any of keys that already exist in the experiment dict will be overwritten.
 
-    if "terms" in config["data"]:
+    if "terms" in fieldnames and "terms" in config["data"]:
         experiment.update(config["data"]["terms"])
         # print(f"Terms are {terms}\n and is of type: {type(terms)}")
 
-    if "params" in config:
+    param_values = [
+        value
         for value in [
             "coverage_penalty",
             "word_dropout",
             "guided_alignment_type",
             "guided_alignment_weight",
-        ]:
+        ]
+        if value in fieldnames
+    ]
+
+    if "params" in config:
+        for value in param_values:
             if value in config["params"]:
                 experiment[value] = config["params"][value]
             else:
                 experiment[value] = None
-
-    return experiment
+    return experiment, pair_count
 
 
 def write_csv(outfile, row_data, column_headers, mode="w"):
-    """Write the data to a csv file. 
-    """
+    """Write the data to a csv file."""
 
     with open(outfile, mode, encoding="utf-8", newline="") as csvfile:
         writer = csv.DictWriter(
@@ -216,13 +264,100 @@ def show_progress(i, filecount, timestarted):
     return None
 
 
+def get_fieldnames():
+
+    # This is the full list of possible fieldnames and their column headings in display order.
+    all_fieldnames = {
+        "series": "Series",
+        "folder": "Folder",
+        "experiment": "Experiment",
+        "complete": "Complete",
+        "parent": "Parent",
+        "git_commit": "Git commit",
+        "train_size": "Train size",
+        "val_size": "Val size",
+        "test_size": "Test size",
+        # Typical terms are {'categories': 'PN', 'dictionary': False, 'include_glosses': True, 'train': False}
+        "categories": "Term cats",
+        "dictionary": "Create dict",
+        "include_glosses": "include_glosses",
+        "train": "Train terms",
+        "dict_size": "Dictionary",
+        "terms_train": "Terms",
+        "all_chars_count": "All Chars",
+        "alphabet_size": "Alphabet",
+        "vocabulary_size": "Parent Vocab",
+        "src_casing": "Source case",
+        "trg_casing": "Target case",
+        "mirror": "Mirror",
+        "src_vocab_size": "Source vocab",
+        "tokens_per_piece": "Tokens per piece",
+        "trg_vocab_size": "Target vocab",
+        "coverage_penalty": "Coverage",
+        "word_dropout": "Dropout",
+        "guided_alignment_type": "GA type",
+        "guided_alignment_weight": "GA weight",
+        "Alignment": "Alignment",
+        "step": "Last Train Steps",
+        "loss": "Loss last step",
+        "perplexity": "Perplexity last step",
+        "bleu": "Bleu train last step",
+        "steps best": "Best Steps",
+        "score best": "Best Bleu",
+        "steps last": "Last Steps",
+        "score last": "Last Bleu",
+        "score max": "Max Bleu",
+        "parent_use_best": "Parent use best",
+        "parent_use_vocab": "Parent use vocab",
+        "config_file": "Config file",
+    }
+
+    # These are the ones to omit from this report.
+    omit = [
+        "folder",
+        "git_commit",
+        "train_size",
+        "val_size",
+        "test_size",
+        "categories",
+        "dictionary",
+        "include_glosses",
+        "train",
+        "dict_size",
+        "terms_train",
+        "all_chars_count",
+        "alphabet_size",
+        "vocabulary_size",
+        "src_casing",
+        "trg_casing",
+        "mirror",
+        "src_vocab_size",
+        "tokens_per_piece",
+        "trg_vocab_size",
+        "coverage_penalty",
+        "word_dropout",
+        "guided_alignment_type",
+        "guided_alignment_weight",
+        "Alignment",
+        "step",
+        "loss",
+        "perplexity",
+        "bleu",
+        "config_file",
+        "parent_use_best",
+        "parent_use_vocab",
+    ]
+
+    return all_fieldnames, omit
+
+
 def main() -> None:
 
     now = dt.datetime.now()
     timestarted = time.time()
 
     parser = argparse.ArgumentParser(
-        description="Find and summarize SILNLP experiment scores. If both -c and -i are set neither will have an effect."
+        description="Find and summarize SILNLP experiment scores. If both -c and -i are set all experiments are reported."
     )
     parser.add_argument(
         "folders",
@@ -243,18 +378,30 @@ def main() -> None:
         action="store_true",
         help="Only report experiments which are incomplete and do not have a score file.",
     )
+    parser.add_argument(
+        "-m",
+        "-many-to-many",
+        action="store_true",
+        help="Include experiments which are many to many.  Not yet implemented.",
+    )
 
     args = parser.parse_args()
     if args.c and args.i:
         args.c = False
         args.i = False
 
-    experiment_paths = [Path(exp_path).resolve() for exp_path in args.folders]
-    #    print(f"Found these experiment paths: {experiment_paths}")
+    try:
+        experiment_paths = [Path(exp_path).resolve() for exp_path in args.folders]
+    except OSError:
+
+        print(
+            f"Could be an S3 bucket. Maybe use copy_with_dir.py to copy the data to a local drive."
+        )
+        exit()
 
     exp_root_len = 0
 
-    output_path = experiment_paths[0] / "results"
+    output_path = experiment_paths[0].parents[0] / "results"
     output_path.mkdir(exist_ok=True)
 
     scores_filename_prefix = r"scores-"
@@ -271,12 +418,10 @@ def main() -> None:
     output_file = output_path / output_filename
     missing_files = output_path / "missing_files.txt"
 
-    # These are the fields in a scores file:
-    # "book","src_iso", "trg_iso", "num_refs", "references", "sent_len", "scorer", "score"
-
     experiments = []
     files_missing = []
     effective_config_count = 0
+    max_pairs = 0
 
     experiment_configs = []
 
@@ -291,11 +436,10 @@ def main() -> None:
     print(
         f"Found {total_configs} configs initially, {len(experiment_configs)} are left after deduplication."
     )
-    with open(r"C:\gutenberg\DCB_Prep\scripts\temp.log", "w", encoding="utf-8") as log:
-    #with open("/home/david/scripts/temp.log", "w", encoding="utf-8") as log:
-        log.writelines(
-            [str(experiment_config) for experiment_config in experiment_configs]
-        )
+
+    all_fieldnames, omit = get_fieldnames()
+    included_fieldnames = {fieldname  for fieldname in all_fieldnames if fieldname not in omit}
+    column_headers = [column_header for fieldname, column_header in all_fieldnames.items() if fieldname not in omit]
 
     for experiment_config in experiment_configs:
         experiment_folder = experiment_config.parent
@@ -303,47 +447,58 @@ def main() -> None:
 
         if effective_configs:
             effective_config_count += 1
-            experiment = get_config_data(effective_configs[0])
+            experiment, no_pairs = get_config_data(effective_configs[0], included_fieldnames)
 
         else:  # Use the config.yml file
-            experiment = get_config_data(experiment_config)
+            experiment, no_pairs = get_config_data(experiment_config, included_fieldnames)
+
+        if not experiment:
+            continue
+
+        max_pairs = max(max_pairs, no_pairs)
 
         # Get data from the process log if it exists
         preprocess_log = experiment["folder"] / "preprocess.log"
-        preprocess_patterns = {
-            "Git commit": ".*?INFO - Git commit: (.*)",
-            "All chars count": ".*?LOG\(INFO\) all chars count=(.*)",
-            "Alphabet size": ".*?LOG\(INFO\) Alphabet size=(.*)",
-            "Vocabulary size": ".*?INFO:tensorflow: - vocabulary size: (.*)",
-            "Alignment": ".*?INFO - Generating train alignments using (.*)",
-            "Train size": ".*?INFO - train size: (\d*?), val size: \d*?, test size: \d*?, dict size: \d*?, terms train size: \d*?",
-            "Val size": ".*?INFO - train size: \d*?, val size: (\d*?), test size: \d*?, dict size: \d*?, terms train size: \d*?",
-            "Test size": ".*?INFO - train size: \d*?, val size: \d*?, test size: (\d*?), dict size: \d*?, terms train size: \d*?",
-            "Dict size": ".*?INFO - train size: \d*?, val size: \d*?, test size: \d*?, dict size: (\d*?), terms train size: \d*?",
-            "Terms train size": ".*?INFO - train size: \d*?, val size: \d*?, test size: \d*?, dict size: \d*?, terms train size: (\d*)",
-        }
+        if preprocess_log.is_file():
 
-        preprocess_patterns = [
-            ".*?INFO - Git commit: (?P<git_commit>.*)",
-            ".*?LOG\(INFO\) all chars count=(?P<all_chars_count>.*)",
-            ".*?LOG\(INFO\) Alphabet size=(?P<alphabet_size>.*)",
-            ".*?INFO:tensorflow: - vocabulary size: (?P<vocabulary_size>.*)",
-            ".*?INFO - Generating train alignments using (?P<alignment>.*)",
-            ".*?INFO - train size: (?P<train_size>\d*?), val size: (?P<val_size>\d*?), test size: (?P<test_size>\d*?), dict size: (?P<dict_size>\d*?), terms train size: (?P<terms_train>\d*)",
-            ".*?num_tokens/piece=(?P<tokens_per_piece>\d*\.\d*)",
-        ]
-        # Tokens per piece pattern relies of the code finding all references and storing only the last.
+            preprocess_patterns_1 = {
+                "Git commit": ".*?INFO - Git commit: (.*)",
+                "All chars count": ".*?LOG\(INFO\) all chars count=(.*)",
+                "Alphabet size": ".*?LOG\(INFO\) Alphabet size=(.*)",
+                "Vocabulary size": ".*?INFO:tensorflow: - vocabulary size: (.*)",
+                "Alignment": ".*?INFO - Generating train alignments using (.*)",
+                "Train size": ".*?INFO - train size: (\d*?), val size: \d*?, test size: \d*?, dict size: \d*?, terms train size: \d*?",
+                "Val size": ".*?INFO - train size: \d*?, val size: (\d*?), test size: \d*?, dict size: \d*?, terms train size: \d*?",
+                "Test size": ".*?INFO - train size: \d*?, val size: \d*?, test size: (\d*?), dict size: \d*?, terms train size: \d*?",
+                "Dict size": ".*?INFO - train size: \d*?, val size: \d*?, test size: \d*?, dict size: (\d*?), terms train size: \d*?",
+                "Terms train size": ".*?INFO - train size: \d*?, val size: \d*?, test size: \d*?, dict size: \d*?, terms train size: (\d*)",
+            }
 
-        preprocess_patterns = [re.compile(regex) for regex in preprocess_patterns]
-        experiment = get_data_from_log(experiment, preprocess_log, preprocess_patterns)
+            preprocess_patterns_2 = [
+                ".*?INFO - Git commit: (?P<git_commit>.*)",
+                ".*?LOG\(INFO\) all chars count=(?P<all_chars_count>.*)",
+                ".*?LOG\(INFO\) Alphabet size=(?P<alphabet_size>.*)",
+                ".*?INFO:tensorflow: - vocabulary size: (?P<vocabulary_size>.*)",
+                ".*?INFO - Generating train alignments using (?P<alignment>.*)",
+                ".*?INFO - train size: (?P<train_size>\d*?), val size: (?P<val_size>\d*?), test size: (?P<test_size>\d*?), dict size: (?P<dict_size>\d*?), terms train size: (?P<terms_train>\d*)",
+                ".*?num_tokens/piece=(?P<tokens_per_piece>\d*\.\d*)",
+            ]
+            # Tokens per piece pattern relies of the code finding all references and storing only the last.
+
+            preprocess_patterns = [re.compile(regex) for regex in preprocess_patterns_2]
+            experiment = get_data_from_log(
+                experiment, preprocess_log, preprocess_patterns
+            )
 
         training_log = experiment["folder"] / "train.log"
-        training_patterns = [
-            re.compile(
-                ".*?Evaluation result for step (?P<step>\d+): loss = (?P<loss>\d+.\d+) ; perplexity = (?P<perplexity>\d+.\d+) ; bleu = (?P<bleu>\d+.\d+)"
-            )
-        ]
-        experiment = get_data_from_log(experiment, training_log, training_patterns)
+
+        if training_log.is_file():
+            training_patterns = [
+                re.compile(
+                    ".*?Evaluation result for step (?P<step>\d+): loss = (?P<loss>\d+.\d+) ; perplexity = (?P<perplexity>\d+.\d+) ; bleu = (?P<bleu>\d+.\d+)"
+                )
+            ]
+            experiment = get_data_from_log(experiment, training_log, training_patterns)
 
         score_files = list(experiment["folder"].glob(scores_file_pattern))
 
@@ -373,15 +528,20 @@ def main() -> None:
                 best_steps = min(scores.keys())
                 last_steps = max(scores.keys())
                 experiment["complete"] = True
-                experiment["steps best"] = best_steps
-                experiment["score best"] = scores[best_steps]
-                experiment["steps last"] = last_steps
-                experiment["score last"] = scores[last_steps]
-                #                print(best_steps, scores[best_steps] , last_steps, scores[last_steps])
+                if "steps best" in included_fieldnames:
+                    experiment["steps best"] = best_steps
+                if "score best" in included_fieldnames or "score max" in included_fieldnames:
+                    experiment["score best"] = scores[best_steps]
+                if "steps last" in included_fieldnames:
+                    experiment["steps last"] = last_steps
+                if "score last" in included_fieldnames or "score max" in included_fieldnames:
+                    experiment["score last"] = scores[last_steps]
 
-                experiment["score max"] = max(
-                    experiment["score best"], experiment["score last"]
-                )
+                #                print(best_steps, scores[best_steps] , last_steps, scores[last_steps])
+                if "score max" in included_fieldnames:
+                    experiment["score max"] = max(
+                        experiment["score best"], experiment["score last"]
+                    )
 
         experiments.append(experiment)
 
@@ -405,68 +565,15 @@ def main() -> None:
     else:
         print("Report includes all experiments.")
         include = experiments
-        
-    # Sort by config file.    
-#    include = natsorted( experiments, key=lambda experiment: experiment["series"] + experiment["experiment"] )
-    include = natsorted( include, key=lambda experiment: experiment["config_file"] )
-    
 
-    # Select here the order and name of fields for the summary file
-    all_fieldnames = {
-        "series"                 : "Series",
-        "folder"                 : "Folder",
-        "experiment"             : "Experiment",
-        "complete"               : "Complete",
-        "parent"                 : "Parent",
-        "git_commit"             : "Git commit",
-        "train_size"             : "Train size",
-        "val_size"               : "Val size",
-        "test_size"              : "Test size",
-        # Typical terms are {'categories': 'PN', 'dictionary': False, 'include_glosses': True, 'train': False}
-        "categories"             : "Term cats",
-        "dictionary"             : "Create dict",
-        "include_glosses"        : "include_glosses",
-        "train"                  : "Train terms",
-        "dict_size"              : "Dictionary",
-        "terms_train"            : "Terms",
-        "all_chars_count"        : "All Chars",
-        "alphabet_size"          : "Alphabet",
-        "vocabulary_size"        : "Parent Vocab",
-        "src_casing"             : "Source case",
-        "trg_casing"             : "Target case",
-        "mirror"                 : "Mirror",
-        "src_vocab_size"         : "Source vocab",
-        "tokens_per_piece"       : "Tokens per piece",
-        "trg_vocab_size"         : "Target vocab",
-        "coverage_penalty"       : "Coverage",
-        "word_dropout"           : "Dropout",
-        "guided_alignment_type"  : "GA type",
-        "guided_alignment_weight": "GA weight",
-        "Alignment"              : "Alignment",
-        "step"                   : "Last Train Steps",
-        "loss"                   : "Loss last step",
-        "perplexity"             : "Perplexity last step",
-        "bleu"                   : "Bleu train last step", 
-        "steps best"             : "Best Steps",
-        "score best"             : "Best Bleu",
-        "steps last"             : "Last Steps",
-        "score last"             : "Last Bleu",
-        "score max"              : "Max Bleu",
-        "parent_use_best"        : "Parent use best",
-        "parent_use_vocab"       : "Parent use vocab",
-        "config_file"              : "Config file",
+    # Sort by config file.
+    #    include = natsorted( experiments, key=lambda experiment: experiment["series"] + experiment["experiment"] )
+    # include = natsorted(include, key=lambda experiment: experiment["config_file"])
 
-    }
-
-    #    omit = ["Folder", "Parent", "Last Train Steps","Loss last step","Perplexity last step","Bleu train last step", "Alignment","Dropout","Coverage","Target vocab",]
-    #    omit = ["Last Train Steps"]
-
-    # With these omitted the output should be as before the Terms data was added.
-    omit = [ "Last Train Steps", "Term cats", "Create dict", "include_glosses", "Train terms",  ]
-
-    output_fields = [
-        fieldname for fieldname in all_fieldnames.values() if fieldname not in omit
-    ]
+#    To Do if necessary for multilingual pairs.
+#    for pair_no in range(1, max_pairs + 1):
+#        fieldnames[f"src {pair_no}"] = f"Source {pair_no}"
+#        fieldnames[f"trg {pair_no}"] = f"Target {pair_no}"
 
     #    experiment0 = experiments[0]
     #    pprint(experiment0)
@@ -475,25 +582,15 @@ def main() -> None:
     new_experiments = []
     for experiment in include:
         new_experiments.append(
-            {
-                all_fieldnames[k] if k in all_fieldnames else k: v
-                for k, v in experiment.items()
-            }
+            {all_fieldnames[k] if k in all_fieldnames else k: v for k, v in experiment.items()}
         )
-
-    #    # Ensure that all the extra fieldnames are in the list of fieldnames.
-    #    keys = fieldnames
-    #    for experiment in experiments:
-    #        for key in list(experiment):
-    #            if key not in keys:
-    #                keys.append(key)
+    print(f"This is the first experiment data:\n{new_experiments[0]}")
 
     # print(f"The column headers for the csv file are: {output_fields}")
+    print(f"These are the included_fieldnames\n{column_headers}")
 
-    #    exit()
 
-
-    write_csv(output_file, new_experiments, output_fields)
+    write_csv(output_file, new_experiments, column_headers=column_headers)
     print(f"Wrote results for {len(new_experiments)} experiments to {output_file}")
 
 
