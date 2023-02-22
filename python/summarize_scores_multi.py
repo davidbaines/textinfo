@@ -3,7 +3,7 @@ import argparse
 from collections import deque
 import csv
 import datetime as dt
-from natsort import natsorted
+#from natsort import natsorted
 from operator import itemgetter
 from pathlib import Path
 from pprint import pprint
@@ -263,6 +263,24 @@ def show_progress(i, filecount, timestarted):
         print(f"Estimated time remaining: {(filecount - i) / rate:.0f} seconds.")
     return None
 
+"""
+'src 1',
+'trg 1',
+'src 2'
+'trg 2',
+'Best steps',
+'Best BLEU ALL',
+'Best CHRF3 ALL',
+'Best WER ALL',
+'Best TER ALL',
+'Best spBLEU ALL',
+'Last steps',
+'Last BLEU ALL',
+'Last CHRF3 ALL',
+'Last WER ALL',
+'Last TER ALL',
+'Last spBLEU ALL', 
+"""
 
 def get_fieldnames():
 
@@ -273,6 +291,22 @@ def get_fieldnames():
         "experiment": "Experiment",
         "complete": "Complete",
         "parent": "Parent",
+        'src 1': "Source 1",
+        'trg 1': "Target 1",
+        'src 2': "Source 2",
+        'trg 2': "Target 2",
+        'Best steps': 'Best steps',
+        'Best BLEU ALL':'Best BLEU ALL',
+        'Best CHRF3 ALL':'Best CHRF3 ALL',
+        'Best WER ALL':'Best WER ALL',
+        'Best TER ALL':'Best TER ALL',
+        'Best spBLEU ALL':'Best spBLEU ALL',
+        'Last steps':'Last steps',
+        'Last BLEU ALL':'Last BLEU ALL',
+        'Last CHRF3 ALL':'Last CHRF3 ALL',
+        'Last WER ALL':'Last WER ALL',
+        'Last TER ALL':'Last TER ALL',
+        'Last spBLEU ALL':'Last spBLEU ALL', 
         "git_commit": "Git commit",
         "train_size": "Train size",
         "val_size": "Val size",
@@ -302,13 +336,6 @@ def get_fieldnames():
         "loss": "Loss last step",
         "perplexity": "Perplexity last step",
         "bleu": "Bleu train last step",
-        "steps best": "Best Steps",
-        "score best": "Best Bleu",
-        "steps last": "Last Steps",
-        "score last": "Last Bleu",
-        "score max": "Max Bleu",
-        "parent_use_best": "Parent use best",
-        "parent_use_vocab": "Parent use vocab",
         "config_file": "Config file",
     }
 
@@ -346,6 +373,7 @@ def get_fieldnames():
         "config_file",
         "parent_use_best",
         "parent_use_vocab",
+        'src_casing'
     ]
 
     return all_fieldnames, omit
@@ -364,7 +392,8 @@ def main() -> None:
         nargs="+",
         help="One or more folders to search recursively for scores. The summary file is stored in a subfolder named results in the first folder.",
     )
-    #    parser.add_argument("output", help="folder for summary csv file.")
+    
+    parser.add_argument("--output", type=Path, help="folder for summary csv file.")
 
     parser.add_argument(
         "-c",
@@ -400,9 +429,12 @@ def main() -> None:
         exit()
 
     exp_root_len = 0
+    if args.output:
+        output_path = Path(args.output)
+    else:
+        output_path = experiment_paths[0] / "results"
 
-    output_path = experiment_paths[0].parents[0] / "results"
-    output_path.mkdir(exist_ok=True)
+    output_path.mkdir(parents=False, exist_ok=True)
 
     scores_filename_prefix = r"scores-"
     ext = r".csv"
@@ -431,7 +463,8 @@ def main() -> None:
                 experiment_configs.append(config)
 
     total_configs = len(experiment_configs)
-    # Remove duplicate paths (which can easily occur since multilple paths are given in the arguments.
+
+    # Remove duplicate paths (which can easily occur since multilple paths may be given in the arguments.
     experiment_configs = list(dict.fromkeys(experiment_configs))
     print(
         f"Found {total_configs} configs initially, {len(experiment_configs)} are left after deduplication."
@@ -502,46 +535,73 @@ def main() -> None:
 
         score_files = list(experiment["folder"].glob(scores_file_pattern))
 
-        if len(score_files) > 0:
-            scores = {}
-            for score_file in experiment["folder"].glob(scores_file_pattern):
-                #            print(i, score_file)
+        best_and_last = [int(m.group(1)) for score_file in score_files if (m := re_steps.match(score_file.name))]
+        if len(best_and_last) >= 1:
+            best_steps = min(best_and_last)
+            last_steps = max(best_and_last)
+        else:
+            experiment["complete"] = False
 
+        if len(score_files) > 0:
+            experiment["complete"] = True
+            # Arrange scores with the factors that make the greatest difference first.
+            # i.e. The scorer can give any score, some might be in the range 0-1, or 0-100
+            # The length of training (ie. steps) has an impact.
+            # I expect the impact from the book to be the smallest impact usually, if the scoring is over the whole book.
+            # So {scorer: {experiment: {steps : {book: score}, steps: {book: score}} }}
+
+            scores = {}
+            for score_file in score_files:
                 m = re_steps.match(score_file.name)
                 if m:
                     steps = int(m.group(1))
+                    
                     if score_file.is_file() and score_file.exists():
                         with open(score_file, "r", encoding="utf-8") as csvfile:
                             csvreader = csv.DictReader(csvfile, delimiter=",")
-                            for row in csvreader:
-                                if row["scorer"] == "BLEU":
-                                    try:
-                                        score, _ = row["score"].split("/", 1)
-                                        score = float(score)
-                                    except ValueError:
-                                        print(row)
-                                        exit()
-                                    scores[steps] = score
+                            for i, row in enumerate(csvreader,1):
+                                #print(i,row)
 
-            if len(scores) > 0:
+                                if row["book"] == "ALL":
+                                    if row["scorer"] == "BLEU":
+                                        try:
+                                            score, _ = row["score"].split("/", 1)   
+                                        except ValueError:
+                                            print(f"Can't read the BLEU score on row {i} of file {score_file}")
+                                            exit()
+                                    else:
+                                        score = row["score"]
 
-                best_steps = min(scores.keys())
-                last_steps = max(scores.keys())
-                experiment["complete"] = True
-                if "steps best" in included_fieldnames:
-                    experiment["steps best"] = best_steps
-                if "score best" in included_fieldnames or "score max" in included_fieldnames:
-                    experiment["score best"] = scores[best_steps]
-                if "steps last" in included_fieldnames:
-                    experiment["steps last"] = last_steps
-                if "score last" in included_fieldnames or "score max" in included_fieldnames:
-                    experiment["score last"] = scores[last_steps]
+                                    if steps == best_steps:
+                                        experiment["Best steps"] = steps
+                                        experiment[f"Best {row['scorer']} {row['book']}"] = score
+                                    
+                                    elif steps == last_steps:
+                                        experiment["Last steps"] = steps
+                                        experiment[f"Last {row['scorer']} {row['book']}"] = score
+                    else:
+                        continue
 
-                #                print(best_steps, scores[best_steps] , last_steps, scores[last_steps])
-                if "score max" in included_fieldnames:
-                    experiment["score max"] = max(
-                        experiment["score best"], experiment["score last"]
-                    )
+            # if len(scores) > 0:
+
+            #     best_steps = min(scores.keys())
+            #     last_steps = max(scores.keys())
+            #     print(scores)
+            #     experiment["complete"] = True
+            #     if "steps best" in included_fieldnames:
+            #         experiment["steps best"] = best_steps
+            #     if "score best" in included_fieldnames or "score max" in included_fieldnames:
+            #         experiment["score best"] = scores[best_steps]["score"]
+            #     if "steps last" in included_fieldnames:
+            #         experiment["steps last"] = last_steps
+            #     if "score last" in included_fieldnames or "score max" in included_fieldnames:
+            #         experiment["score last"] = scores[last_steps]["score"]
+
+            #     # print(best_steps, scores[best_steps] , last_steps, scores[last_steps])
+            #     if "score max" in included_fieldnames:
+            #         experiment["score max"] = max(
+            #             experiment["score best"], experiment["score last"]
+            #         )
 
         experiments.append(experiment)
 
@@ -549,50 +609,30 @@ def main() -> None:
         # This is useful for finding out the tokens/piece value of a series
         # Where only the preprocessing has been done.
 
-    if args.c:
-        include = [experiment for experiment in experiments if experiment["complete"]]
-        print("Report includes only experiments with scores.")
-
-        # In this case we should be able to sort by bleu scores. But might not want to.
-        # include = sorted(include, key=lambda experiment: experiment["score max"])
-
-    elif args.i:
-        include = [
+    complete_experiments = [experiment for experiment in experiments if experiment["complete"]]
+    incomplete_experiments = [
             experiment for experiment in experiments if not experiment["complete"]
         ]
-        print("Report includes only experiments without scores..")
+    
+    if args.c:
+        write_csv(output_file, complete_experiments, column_headers=column_headers)
+        print(f"Wrote results only for the {len(complete_experiments)} experiments with scores to {output_file}")
+        print(f"There are {len(incomplete_experiments)} experiments without scores.")
+
+    elif args.i:
+        write_csv(output_file, incomplete_experiments, column_headers=column_headers)
+        print(f"Wrote results only for the {len(incomplete_experiments)} experiments without scores to {output_file}")
+        print(f"There are {len(complete_experiments)} experiments with scores.")
 
     else:
-        print("Report includes all experiments.")
-        include = experiments
+        write_csv(output_file, experiments, column_headers=column_headers)
+        print(f"Report includes all experiments. {len(complete_experiments)} experiments have scores and {len(incomplete_experiments)} do not.")
+        
 
-    # Sort by config file.
-    #    include = natsorted( experiments, key=lambda experiment: experiment["series"] + experiment["experiment"] )
-    # include = natsorted(include, key=lambda experiment: experiment["config_file"])
-
-#    To Do if necessary for multilingual pairs.
-#    for pair_no in range(1, max_pairs + 1):
-#        fieldnames[f"src {pair_no}"] = f"Source {pair_no}"
-#        fieldnames[f"trg {pair_no}"] = f"Target {pair_no}"
-
-    #    experiment0 = experiments[0]
-    #    pprint(experiment0)
-    #    experiment0 = {fieldnames[k] if k in fieldnames else k:v for k,v in experiment0.items()}
-
-    new_experiments = []
-    for experiment in include:
-        new_experiments.append(
-            {all_fieldnames[k] if k in all_fieldnames else k: v for k, v in experiment.items()}
-        )
-    print(f"This is the first experiment data:\n{new_experiments[0]}")
+    #print(f"This is the first experiment data:\n{experiments[0]}")
 
     # print(f"The column headers for the csv file are: {output_fields}")
-    print(f"These are the included_fieldnames\n{column_headers}")
-
-
-    write_csv(output_file, new_experiments, column_headers=column_headers)
-    print(f"Wrote results for {len(new_experiments)} experiments to {output_file}")
-
+    #print(f"These are the included_fieldnames\n{column_headers}")
 
 if __name__ == "__main__":
     main()

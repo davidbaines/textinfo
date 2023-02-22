@@ -3,18 +3,34 @@ from pathlib import Path
 import shutil
 from tqdm import tqdm
 
+
+def choose_yes_no(prompt: str) -> bool:
+
+    choice: str = " "
+    while choice not in ["n","y"]:
+        choice: str = input(prompt).strip()[0].lower()
+    if choice == "y":
+        return True
+    elif choice == "n":
+        return False
+
+        
 source_folder_str = "S:/MT/experiments"
-dest_folder_str = "E:/Work/MT/experiments" 
+#dest_folder_str = "E:/Work/MT/experiments" 
+dest_folder_str = "E:/Work/Pilot_projects/Loudian/experiments"
+#dest_folder_str = "E:/Work/Pilot_projects/Ayta Mag Indi/experiments"
+
 source = Path(source_folder_str)
 dest = Path(dest_folder_str) 
 
 source_drive = "S:"
 dest_drive = "E:"
-subfolder = "BT-English-NLLB"
+subfolder = "BT-Mandarin-NLLB"
+#subfolder = "BT-Tagalog-NLLB"
 source_subfolder = source / subfolder
 
 subfolders = [folder for folder in source_subfolder.glob("*") if folder.is_dir()]
-print(f"There are {len(subfolders)} folders in {source}")
+print(f"There are {len(subfolders)} folders in {source_subfolder}")
 
 infer_folder = "infer"
 top_shared_folder_name = "MT"
@@ -30,7 +46,7 @@ patterns = ("config.yml", "effective-config*.yml") # "test*")
 #files = [file for file in source.iterdir() if any(file.match(pattern) for pattern in patterns)]
 for subfolder in subfolders:
     test_source = source / subfolder
-    print(f"Looking for files to copy from {subfolder}")
+    #print(f"Looking for files to copy from {subfolder}")
     #scores_files = [file for file in source.rglob(scores_pattern) if (file.parent / "config.yml").is_file()]
     scores_files = [file for file in test_source.rglob(scores_pattern) if (file.parent / "config.yml").is_file()]
     config_files = [file.with_name("config.yml") for file in scores_files]
@@ -66,23 +82,17 @@ for subfolder in subfolders:
         #print(f"Checking to see if {copy_to} exists: {copy_to.is_file()}.")
         if not copy_to.is_file():
             filtered_files_to_copy.append((file_to_copy, copy_to))
-    if files_to_copy:
-        print(f"Found {len(files_to_copy)} files to copy from {subfolder}, of which {len(files_to_copy) - len(filtered_files_to_copy)} already exist on the destination.")
-    else: 
-        print(f"Found {len(files_to_copy)} files to copy from {subfolder}")
 
-    #print(f"Found {len(scores_files)} scores files in {test_source}.")
-    # print(scores_files)
-    # print(f"Found {len(source_folders)} source folders.")
-    # for source_folder in source_folders:
-    #     print(source_folder)
+           
+    #     print(f"Found {len(files_to_copy)} files to copy from {subfolder}.  {len(files_to_copy) - len(filtered_files_to_copy)} already exist on the destination.")
+    # else: 
+    #     print(f"Found {len(files_to_copy)} files to copy from {subfolder}")
 
-    # for dest_folder in dest_folders:
-    #     print(dest_folder)
-    # print(dest_folder_str)
-
-    #for effective_config_file in effective_config_files:
-    #    print(effective_config_file)
+    # if not filtered_files_to_copy:
+    #     continue
+    # elif not choose_yes_no("Continue y/n ?"):
+    #     exit()
+if filtered_files_to_copy:
     for files in tqdm(filtered_files_to_copy):
         source_file, dest_file = files
         #print(s,d)
@@ -96,9 +106,11 @@ for subfolder in subfolders:
         #print(f"Writing:  {dest_file}")
         shutil.copyfile(source_file, dest_file)
 
-    #    copy_to = dest / str(file_to_copy.parent)[len(source_folder_str) + 1:] / file_to_copy.name
-    #    print(copy_to)
-    #    print(copy_to.is_file())
+        #    copy_to = dest / str(file_to_copy.parent)[len(source_folder_str) + 1:] / file_to_copy.name
+        #    print(copy_to)
+        #    print(copy_to.is_file())
+else :
+    print(f"All specified files already exist in {dest}")
 exit()
 
 #for file_pattern in file_patterns:
