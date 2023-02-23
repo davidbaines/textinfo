@@ -289,6 +289,8 @@ def get_fieldnames():
         "series": "Series",
         "folder": "Folder",
         "experiment": "Experiment",
+        "Source": "Source",
+        "Target": "Target",
         "complete": "Complete",
         "parent": "Parent",
         'src 1': "Source 1",
@@ -307,7 +309,6 @@ def get_fieldnames():
         'Last WER ALL':'Last WER ALL',
         'Last TER ALL':'Last TER ALL',
         'Last spBLEU ALL':'Last spBLEU ALL', 
-        "git_commit": "Git commit",
         "train_size": "Train size",
         "val_size": "Val size",
         "test_size": "Test size",
@@ -315,29 +316,41 @@ def get_fieldnames():
         "categories": "Term cats",
         "dictionary": "Create dict",
         "include_glosses": "include_glosses",
-        "train": "Train terms",
-        "dict_size": "Dictionary",
-        "terms_train": "Terms",
-        "all_chars_count": "All Chars",
-        "alphabet_size": "Alphabet",
-        "vocabulary_size": "Parent Vocab",
         "src_casing": "Source case",
         "trg_casing": "Target case",
-        "mirror": "Mirror",
-        "src_vocab_size": "Source vocab",
-        "tokens_per_piece": "Tokens per piece",
+        "train": "Train terms",
         "trg_vocab_size": "Target vocab",
-        "coverage_penalty": "Coverage",
-        "word_dropout": "Dropout",
-        "guided_alignment_type": "GA type",
-        "guided_alignment_weight": "GA weight",
-        "Alignment": "Alignment",
-        "step": "Last Train Steps",
-        "loss": "Loss last step",
-        "perplexity": "Perplexity last step",
-        "bleu": "Bleu train last step",
+        "dict_size": "Dictionary",
+        "terms_train": "Terms",
         "config_file": "Config file",
+        "score best": "Best Score",
+        "score last": "Last Score",
+        "parent_use_best": "Parent use best",
+        "parent_use_vocab": "Parent use vocab",
+        "src_casing": "scr_casing",
+        "src_vocab_size": "Source vocab",
+        "mirror": "Mirror",
     }
+    
+# """        "all_chars_count": "All Chars",
+#         "alphabet_size": "Alphabet",
+#         "vocabulary_size": "Parent Vocab",
+#         "git_commit": "Git commit",
+#         "src_casing": "Source case",
+#         "trg_casing": "Target case",
+#         "mirror": "Mirror",
+#         "src_vocab_size": "Source vocab",
+#         "tokens_per_piece": "Tokens per piece",
+#         "trg_vocab_size": "Target vocab",
+#         "coverage_penalty": "Coverage",
+#         "word_dropout": "Dropout",
+#         "guided_alignment_type": "GA type",
+#         "guided_alignment_weight": "GA weight",
+#         "Alignment": "Alignment",
+#         "step": "Last Train Steps",
+#         "loss": "Loss last step",
+#         "perplexity": "Perplexity last step",
+#         "bleu": "Bleu train last step","""
 
     # These are the ones to omit from this report.
     omit = [
@@ -581,6 +594,7 @@ def main() -> None:
                                         experiment[f"Last {row['scorer']} {row['book']}"] = score
                     else:
                         continue
+                #print(experiment)
 
             # if len(scores) > 0:
 
@@ -605,13 +619,29 @@ def main() -> None:
 
         experiments.append(experiment)
 
-        # If experiments without scores are being reported add them
-        # This is useful for finding out the tokens/piece value of a series
-        # Where only the preprocessing has been done.
+    # If experiments without scores are being reported add them
+    # This is useful for finding out the tokens/piece value of a series
+    # Where only the preprocessing has been done.
 
-    complete_experiments = [experiment for experiment in experiments if experiment["complete"]]
+    # If most of the data is missing from the output it is probably
+    # because the fieldnames have not been translated into the column names.
+
+    # translated_experiments = [{all_fieldnames[key]: value for experiment in experiments for (key, value) in experiment.items()}]
+    tr_experiments = []
+    for experiment in experiments:
+        tr_experiments.append(
+            {
+                all_fieldnames[k]: v
+                for k, v in experiment.items()
+                if all_fieldnames[k] in column_headers
+            }
+        )
+    
+    experiments = tr_experiments
+
+    complete_experiments = [experiment for experiment in experiments if experiment["Complete"]]
     incomplete_experiments = [
-            experiment for experiment in experiments if not experiment["complete"]
+            experiment for experiment in experiments if not experiment["Complete"]
         ]
     
     if args.c:
