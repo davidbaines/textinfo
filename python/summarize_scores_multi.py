@@ -386,7 +386,9 @@ def get_fieldnames():
         "config_file",
         "parent_use_best",
         "parent_use_vocab",
-        'src_casing'
+        'src_casing',
+        "score best",
+        "score last",
     ]
 
     return all_fieldnames, omit
