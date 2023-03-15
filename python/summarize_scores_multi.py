@@ -247,7 +247,7 @@ def write_csv(outfile, row_data, column_headers, mode="w"):
         )
         writer.writeheader()
         writer.writerows(row_data)
-
+        writer.writerow({"Series": "Written by F:/GitHub/davidbaines/textinfo/python/summarize_scores_multi.py"})
     return None
 
 
