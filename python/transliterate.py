@@ -52,9 +52,12 @@ ARABIC SMALL KASRA 1562
 
 """
 
-source          = [1611,1612,1613,1614,1615,1616,1617,1618,1620,1648,8204,8205,1619,1621,1631]
-destination     = [1907,1912,1909,1736,1734,1742,2188,2187,2179,2221,2180,2181,1559,1561,1562]
-transliteration = {s:d for s,d in zip(source, destination)}
+arb_source          = [1611,1612,1613,1614,1615,1616,1617,1618,1620,1648,8204,8205,1619,1621,1631]
+arb_destination     = [1907,1912,1909,1736,1734,1742,2188,2187,2179,2221,2180,2181,1559,1561,1562]
+arb_transliteration = {s:d for s,d in zip(arb_source, arb_destination)}
+
+n_to_han_source 
+
 
 def _count_generator(reader,file):
     b = reader(1024 * 1024)
