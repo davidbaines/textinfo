@@ -16,17 +16,14 @@ def choose_yes_no(prompt: str) -> bool:
 
         
 source_folder_str = "S:/MT/experiments"
-#dest_folder_str = "E:/Work/MT/experiments" 
-dest_folder_str = "E:/Work/Pilot_projects/Loudian/experiments"
-#dest_folder_str = "E:/Work/Pilot_projects/Ayta Mag Indi/experiments"
+dest_folder_str = "E:/Work/Pilot_projects/Themne"
 
 source = Path(source_folder_str)
 dest = Path(dest_folder_str) 
 
 source_drive = "S:"
 dest_drive = "E:"
-subfolder = "BT-Mandarin-NLLB"
-#subfolder = "BT-Tagalog-NLLB"
+subfolder = "TEM"
 source_subfolder = source / subfolder
 
 subfolders = [folder for folder in source_subfolder.glob("*") if folder.is_dir()]
@@ -44,54 +41,45 @@ patterns = ("config.yml", "effective-config*.yml") # "test*")
 # https://stackoverflow.com/questions/4568580/python-glob-multiple-filetypes
 #Not recursive?
 #files = [file for file in source.iterdir() if any(file.match(pattern) for pattern in patterns)]
+files_to_copy = []
+
 for subfolder in subfolders:
     test_source = source / subfolder
-    #print(f"Looking for files to copy from {subfolder}")
-    #scores_files = [file for file in source.rglob(scores_pattern) if (file.parent / "config.yml").is_file()]
-    scores_files = [file for file in test_source.rglob(scores_pattern) if (file.parent / "config.yml").is_file()]
-    config_files = [file.with_name("config.yml") for file in scores_files]
+    scores_files = [file for file in test_source.rglob(scores_pattern)]
+    config_files = [file for file in test_source.rglob("config.yml")]
+    effective_config_files = [file for file in test_source.rglob("effective-config*.yml")]
 
-    source_folders = sorted(set([file.parent for file in scores_files]))
-
-    #infer_folders = []
-    #for source_folder in source_folders:
-    #    source_infer_folder = source_folder / infer_folder
-    #    if source_infer_folder.is_dir():
-    #        dest_infer_folder = dest / str(file_to_copy.parent)[len(source_folder_str) + 1:] / infer_folder
-    #        print(f"Copying {source_infer_folder} to {dest_infer_folder}")
-    #        #shutil.copytree(source_infer_folder ,dest_infer_folder)
-
-    #effective_config_files = []
-    #for source_folder in source_folders:
-    #    for file in source_folder.glob("effective-config*.yml"):
-    #        effective_config_files.append(file)
-
-    effective_config_files = [file for source_folder in source_folders for file in source_folder.glob("effective-config*.yml")]
-    inferred_files = [file for source_folder in source_folders for file in source_folder.rglob("*.sfm")]
-
-    files_to_copy = scores_files
     files_to_copy.extend(config_files)
     files_to_copy.extend(effective_config_files)
+    files_to_copy.extend(scores_files)
+    
+    source_folders = sorted(set([file_to_copy.parent for file_to_copy in files_to_copy]))
+
+#    effective_config_files = [file for source_folder in source_folders for file in source_folder.glob("effective-config*.yml")]
+    inferred_files = [file for source_folder in source_folders for file in source_folder.rglob("*.sfm")]
     files_to_copy.extend(inferred_files)
 
-    # Filter out existing files
-    filtered_files_to_copy = []
-    for file_to_copy in files_to_copy:
+# Filter out existing files
+filtered_files_to_copy = []
+for file_to_copy in files_to_copy:
+    
+    copy_to = dest / str(file_to_copy.parent)[len(source_folder_str) + 1:] / file_to_copy.name
+    #print(f"Checking to see if {copy_to} exists: {copy_to.is_file()}.")
+    if not copy_to.is_file():
+        filtered_files_to_copy.append((file_to_copy, copy_to))
+
+print(f"There are {len(filtered_files_to_copy)} files to copy from {source_subfolder}.")
+print(f"{len(files_to_copy) - len(filtered_files_to_copy)} files already exist in the destintation folder; {dest}")
         
-        copy_to = dest / str(file_to_copy.parent)[len(source_folder_str) + 1:] / file_to_copy.name
-        #print(f"Checking to see if {copy_to} exists: {copy_to.is_file()}.")
-        if not copy_to.is_file():
-            filtered_files_to_copy.append((file_to_copy, copy_to))
+#     print(f"Found {len(files_to_copy)} files to copy from {subfolder}.  {len(files_to_copy) - len(filtered_files_to_copy)} already exist on the destination.")
+# else: 
+#     print(f"Found {len(files_to_copy)} files to copy from {subfolder}")
 
-           
-    #     print(f"Found {len(files_to_copy)} files to copy from {subfolder}.  {len(files_to_copy) - len(filtered_files_to_copy)} already exist on the destination.")
-    # else: 
-    #     print(f"Found {len(files_to_copy)} files to copy from {subfolder}")
+# if not filtered_files_to_copy:
+#     continue
+# elif not choose_yes_no("Continue y/n ?"):
+#     exit()
 
-    # if not filtered_files_to_copy:
-    #     continue
-    # elif not choose_yes_no("Continue y/n ?"):
-    #     exit()
 if filtered_files_to_copy:
     for files in tqdm(filtered_files_to_copy):
         source_file, dest_file = files

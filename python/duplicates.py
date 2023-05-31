@@ -6,12 +6,15 @@ Usage: duplicates.py <folder> [<folder>...]
 Based on https://stackoverflow.com/a/36113168/300783
 Modified for Python3 with some small code improvements.
 """
-import os
-import sys
 import hashlib
-from collections import defaultdict
-from pathlib import Path
+import os
 import pickle
+import string
+import sys
+from collections import defaultdict
+from ctypes import windll
+from pathlib import Path
+
 
 def chunk_reader(fobj, chunk_size=1024):
     """Generator that reads a file in chunks of bytes"""
@@ -20,6 +23,12 @@ def chunk_reader(fobj, chunk_size=1024):
         if not chunk:
             return
         yield chunk
+
+
+def get_drives():
+    return [
+        f"{drive}" for drive in string.ascii_uppercase if os.path.exists(f"{drive}:")
+    ]
 
 
 def get_hash(filename, first_chunk_only=False, hash_algo=hashlib.sha1):
@@ -33,22 +42,38 @@ def get_hash(filename, first_chunk_only=False, hash_algo=hashlib.sha1):
     return hashobj.digest()
 
 
+def dump_pickle(data, pickle_file):
+    with open(pickle_file, "wb") as f_pickle:
+        pickle.dump(data, f_pickle)
+
+
+def load_pickle(pickle_file):
+    with open(pickle_file, "rb") as f_pickle:
+        return pickle.load(f_pickle)
+
+
 def check_for_duplicates(paths):
+    # TODO Refactor to use {file: (size, small_hash, full_hash)} or class object.
+
+    drives = ['C','D','E','F']
+    print(drives)  # On my PC, this prints ['A', 'C', 'D', 'F', 'H']
+    
     files_by_size = defaultdict(list)
     files_by_small_hash = defaultdict(list)
-    files_by_full_hash = dict()
-    
+    files_by_full_hash = defaultdict(list)
+
     size_pickle = Path("sizes.pickle").resolve()
     small_hash_pickle = Path("small_hashes.pickle").resolve()
     full_hash_pickle = Path("file_hashes.pickle").resolve()
-    
-    # Refactor to use {file: (size, small_hash, full_hash)}
-    
-    #with open(pickle_file,"wb") as f_pickle:
-    #    pickle.dump(data, f_pickle)
-    
-    #with open(pickle_file,"rb") as f_pickle:
-    #    pickle.load(f_pickle)
+
+    if size_pickle.is_file():
+        files_by_size = load_pickle(size_pickle)
+
+    if small_hash_pickle.is_file():
+        files_by_small_hash = load_pickle(small_hash_pickle)
+
+    if full_hash_pickle.is_file():
+        files_by_full_hash = load_pickle(full_hash_pickle)
 
     for path in paths:
         for dirpath, _, filenames in os.walk(path):
@@ -62,7 +87,11 @@ def check_for_duplicates(paths):
                 except OSError:
                     # not accessible (permissions, etc) - pass on
                     continue
-                files_by_size[file_size].append(full_path)
+
+                if full_path in files_by_size:
+                    # Update the size and mark as updated
+
+                    files_by_size[file_size].append(full_path)
 
     # For all files with the same file size, get their hash on the first 1024 bytes
     for file_size, files in files_by_size.items():
@@ -96,7 +125,6 @@ def check_for_duplicates(paths):
                 print("Duplicate found:\n - %s\n - %s\n" % (filename, duplicate))
             else:
                 files_by_full_hash[full_hash] = filename
-
 
 
 if __name__ == "__main__":

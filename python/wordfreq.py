@@ -6,7 +6,8 @@ import csv
 import os
 import sys
 import unicodedata
-
+import re
+from collections import defaultdict
 from collections import Counter
 import datetime as dt
 from operator import itemgetter
@@ -686,6 +687,18 @@ def get_character_data(char_counts,file = ""):
         character_data.append(c)
     return character_data
     
+
+def clean_word_counts(word_counts):
+    cleaned_counts = defaultdict(int)
+
+    for wc in word_counts:
+        word, count = wc.split(",")
+        # remove punctuation at the start and end of the word, keep hyphens in the middle
+        cleaned_word = re.sub(r'^[^a-zA-Z-]|[^a-zA-Z-]$', '', word)
+        cleaned_counts[cleaned_word] += int(count)
+
+    return cleaned_counts
+
 def get_word_data(word_counts,file = ""):
     """ Given a Counter that has counted the occurrences of words, return a list of dictionaries with
     data about the words in the file."""
@@ -693,6 +706,9 @@ def get_word_data(word_counts,file = ""):
     for word, count in word_counts.most_common():
         word_data.append({"word":word, "count":count, "file":file})
     return word_data    
+
+
+
 
 def main():
 
