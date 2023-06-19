@@ -2,7 +2,6 @@
 # NLLB_missing_tokens.ipynb
 # Compare two files and find the characters corresponding to <unk> tokens.
 
-import multiprocessing as mp
 import re
 from collections import Counter, defaultdict
 from csv import DictWriter
@@ -10,7 +9,6 @@ from pathlib import Path
 from typing import IO, Iterable, Iterator, List, Optional, Sequence, Tuple, cast
 
 import boto3
-from sacremoses import MosesPunctNormalizer
 from tqdm import tqdm
 
 
@@ -19,10 +17,6 @@ def read_s3_text_file(bucket, key):
     response = s3.get_object(Bucket=bucket, Key=key)
     data = response["Body"].read().decode("utf-8")  # decoding the bytes to string
     return data
-
-
-mpn = MosesPunctNormalizer()
-mpn.substitutions = [(re.compile(r), sub) for r, sub in mpn.substitutions]
 
 
 def get_files_lines(tokenized_file, detokenized_file):
@@ -52,56 +46,12 @@ def count_unknowns(tokenized_file, detokenized_file, token):
             tokens_found = re.findall(f"{token}", tok_line)
 
             if tokens_found:
-                # Remove unnecessary characters.
-
-                merged_tok_line = remove_chars(
-                    mpn.normalize(tok_line), ["\n", " ", "▁"]
-                )
-                merged_detok_line = remove_chars(mpn.normalize(detok_line), ["\n", " "])
-
-                unknown_tokens = merged_detok_line
-                common_strings = merged_tok_line.split(token)
-
-                for common_string in common_strings:
-                    unknown_tokens = unknown_tokens.replace(common_string, "")
-                # print(f"Unknown tokens are {unknown_tokens}")
-                # print(f"{merged_detok_line}")
-                # print(f"{merged_tok_line}")
-                # print(f"Common strings are {common_strings}")
-
-                unknowns.update(unknown_tokens)
-
-    return unknowns
-
-
-def alt_count_unknowns(tokenized_file, detokenized_file, token):
-
-    unknowns = Counter()
-    with open(tokenized_file, "r", encoding="utf-8") as tok, open(
-        detokenized_file, "r", encoding="utf-8"
-    ) as detok:
-        tok_lines = tok.readlines()
-        detok_lines = detok.readlines()
-
-        for i, (tok_line, detok_line) in enumerate(zip(tok_lines, detok_lines)):
-            tokens_found = re.findall(f"{token}", tok_line)
-
-            if tokens_found:
 
                 # Remove known characters from detok line:
                 unknown_chars = remove_chars(mpn.normalize(detok_line), tok_line)
                 if len(unknown_chars) == len(tokens_found):
                     unknowns.update(unknown_chars)
-                else:
-                    continue
-                    print(f"\nIn line {i+1} of {tokenized_file.name}:")
-                    print(
-                        f"Found {len(tokens_found)} <unk> tokens in the tokenized line. Found {len(unknown_chars)} characters in the untokenized line that were not in the detokenized line."
-                    )
-                    print(f"Unknown tokens are {unknown_chars}")
-                    print(f"{mpn.normalize(detok_line).strip()}")
-                    print(f"{mpn.normalize(tok_line).strip()}")
-
+                
     return unknowns
 
 
