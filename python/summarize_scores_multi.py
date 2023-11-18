@@ -10,8 +10,17 @@ from pprint import pprint
 import re
 import time
 import yaml
+import boto3
+
 
 csv.register_dialect("default")
+
+
+def read_s3_text_file(bucket, key):
+    s3 = boto3.client('s3')
+    response = s3.get_object(Bucket=bucket, Key=key)
+    data = response['Body'].read().decode('utf-8')  # decoding the bytes to string
+    return data
 
 
 def find_last_in_file(in_file, pattern, last_n=1):
@@ -154,11 +163,15 @@ def get_config_data(config_file, fieldnames):
             # This probably isn't a config.yml file for one of our experiments.
             # experiment["experiment"] = "Invalid - no data section"
             return None, None
-
-    #    pairs = config["data"]["corpus_pairs"]
-    #    for i, pair in enumerate(pairs):
-    #        print(pair)
-    #        experiment[f"corpus_pair_{i}"] = pair
+        
+        if not "corpus_pairs" in config["data"]:
+            # This probably isn't a config.yml file for one of our experiments.
+            # experiment["experiment"] = "Invalid - no data section"
+            return None, None
+        
+        # Skip experiments with more than one corpus pair.
+        if len(config["data"]["corpus_pairs"]) > 2:
+            return None, None
 
     for value in [
         "parent",
@@ -178,7 +191,7 @@ def get_config_data(config_file, fieldnames):
     # The NLLB models use 'model' instead of 'parent'
     if "model" in config:
         experiment["parent"] = config["model"]
-
+    
     if config["data"]["corpus_pairs"]:
         # print(f"In config file {config_file}: data/corpus_pairs is:")
         # print(config["data"]["corpus_pairs"], type(config["data"]["corpus_pairs"]))
@@ -190,12 +203,13 @@ def get_config_data(config_file, fieldnames):
             if type(corpus_pair["src"]) == type(list()) or type(
                 corpus_pair["trg"]
             ) == type(list()):
-                return None, None
-                print(
-                    f"Config file {config_file} has a list of corpus_pairs:\n{corpus_pair}"
-                )
-                print(corpus_pair["src"], type(corpus_pair["src"]))
 
+                #print(
+                #    f"Config file {config_file} has a list of corpus_pairs:\n{corpus_pair}"
+                #)
+                #print(corpus_pair["src"], type(corpus_pair["src"]))
+                return None, None
+            
             elif (
                 type(corpus_pair["src"]) == type("string")
                 and type(corpus_pair["trg"]) == type("string")
@@ -635,7 +649,7 @@ def main() -> None:
             {
                 all_fieldnames[k]: v
                 for k, v in experiment.items()
-                if all_fieldnames[k] in column_headers
+                if k in all_fieldnames and all_fieldnames[k] in column_headers
             }
         )
     
