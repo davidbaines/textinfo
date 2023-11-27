@@ -648,10 +648,12 @@ def unicode_data(character,count,file=""):
     c["combining"] = unicodedata.combining(character)
     c["eaw"] = unicodedata.east_asian_width(character)
     c["mirrored"] = unicodedata.mirrored(character)
-    c["chinese"] = hanzidentifier.has_chinese(character)
-    c["simplified"] = hanzidentifier.is_simplified(character)
-    c["traditional"] = hanzidentifier.is_traditional(character)
-    
+    c["simplified"] = ""
+    c["traditional"] = ""
+    if hanzidentifier.has_chinese(character):
+        c["simplified"] = hanzidentifier.is_simplified(character)
+        c["traditional"] = hanzidentifier.is_traditional(character)
+
     if not file == "" :
         c["filename"] = file.name
     #c["char"] = " " + character + " "
