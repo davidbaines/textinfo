@@ -4,6 +4,7 @@
 import argparse
 import csv
 import datetime as dt
+import hanzidentifier
 import multiprocessing as mp
 import os
 import sys
@@ -647,6 +648,10 @@ def unicode_data(character,count,file=""):
     c["combining"] = unicodedata.combining(character)
     c["eaw"] = unicodedata.east_asian_width(character)
     c["mirrored"] = unicodedata.mirrored(character)
+    c["chinese"] = hanzidentifier.has_chinese(character)
+    c["simplified"] = hanzidentifier.is_simplified(character)
+    c["traditional"] = hanzidentifier.is_traditional(character)
+    
     if not file == "" :
         c["filename"] = file.name
     #c["char"] = " " + character + " "
@@ -686,7 +691,7 @@ def main():
     
     parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
     parser.add_argument('--input_folder',  type=Path,                                                help="Folder to search")
-    parser.add_argument('--output_folder', type=Path,                                                help="Folder for the output results. The default is the current folder.", required=True)
+    parser.add_argument('--output_folder', type=Path,                                                help="Folder for the output results. The default is the current folder.", required=False)
     parser.add_argument('--extension',     type=str,            default="txt",                       help="Specify which files to read by extension. The default is 'txt'.")
     parser.add_argument('--input_files',   nargs="+",           default=[],                          help="Files to read. Ignores input folder and extension argument.")
     parser.add_argument('--split_token',   action="store_true", default=False,                       help="Count the indiviual characters in the <range> token.")
@@ -706,7 +711,10 @@ def main():
 
     tokens = [] if split_token else ["<range>"]
 
-    output_folder = Path(args.output_folder)
+    if not args.output_folder:
+        output_folder = Path(os.getcwd())
+    else:
+        output_folder = Path(args.output_folder)
     
     summary_csv_file = output_folder / args.summary
     detail_csv_file  = output_folder / args.full
