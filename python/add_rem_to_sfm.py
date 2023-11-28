@@ -2,12 +2,12 @@ import argparse
 #import boto3
 from datetime import date
 from pathlib import Path
-
+from string import Template
 
 def choose_yes_no(prompt: str) -> bool:
 
     choice: str = " "
-    while choice not in ["n","y"]:
+    while choice == "" or choice not in ["n","y"]:
         choice: str = input(prompt).strip()[0].lower()
     if choice == "y":
         return True
@@ -24,7 +24,9 @@ def get_lines(file):
 
 def save_file(file, lines):
 
-    with open(file, 'w', encoding='utf-8') as f_out:
+    new_file = file.with_suffix(".rem.sfm")
+
+    with open(new_file, 'w', encoding='utf-8') as f_out:
         for line in lines:
             f_out.write(line + "\n")
 
@@ -49,7 +51,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    today = date.today()
+    remark = Template("\\rem This draft of $book was machine translated on $today from the $description using model $experiment. It should be reviewed and edited carefully.")
 
     folder = Path(args.folder)
 
@@ -63,38 +65,46 @@ def main() -> None:
     else:
         raise RuntimeError(f"\nLooking for the two folders above the 'infer' directory as the experiment name.\nCouldn't find the experiment from the folder: {folder}")
 
-    files = [file for file in folder.glob("*.sfm")]
+    files = [file for file in folder.glob("*.sfm") if file not in folder.glob("*.rem.sfm")]
+
+    #print(type(files), files)
     
     first_file_lines = get_lines(files[0])
     first_book_id =  get_id(first_file_lines)
     description = get_description(first_file_lines)
+    # Some ID lines also contain a remark.
+    if "\\rem" in description:
+        description = description.split("\\rem",1)[0]
 
     source = args.source
     
     if source:
         description = source
     
-    if len(description) < 5:
-        print(f"The description of the source version is very short: {description}")
+    if not description or len(description) < 5:
+        print(f"The description of the source version is missing or very short: {description}")
         if not choose_yes_no(f"Continue y/n?"):
             exit()
 
     if not source and description:
-        print(f"The source version has this description on the ID line:\n{description}")
-
-    remark = f"\\rem This draft of {first_book_id} was machine translated on {today} from the {source} using model {experiment}.  It should be reviewed and edited carefully."
-    print(f"The following line will be added to each of the {len(files)} sfm files in {folder}\n{remark}\n")
+        print(f"The source version has this description on the ID line:\n{description}\n")
     
+    first_remark = remark.substitute(book = first_book_id, today = date.today(), description = description, experiment = experiment).replace("  ", " ")
+    #remark = f"\\rem This draft of {first_book_id} was machine translated on {today} from the {description} using model {experiment}.  It should be reviewed and edited carefully."
+    
+    print(f"The following line will be added to a copy of each of the {len(files)} sfm files in {folder}\n{first_remark}\n")
+    print("The copy will have the suffix .rem.sfm")
     if not choose_yes_no(f"Continue adding y/n?"):
         exit()
 
     for file in files:
         lines = get_lines(file)
         book = get_id(lines)
-        remark = f"\\rem This draft of {book} was machine translated on {today} from the {source} using model {experiment}.  It should be reviewed and edited carefully."
-        lines.insert(1, remark)
+        #remark = f"\\rem This draft of {book} was machine translated on {today} from the {source} using model {experiment}.  It should be reviewed and edited carefully."
+        next_remark = remark.substitute(book = book, today = date.today(), description = description, experiment = experiment).replace("  ", " ")
+        lines.insert(1, next_remark)
         save_file(file,lines)
-        print(remark)
+        print(next_remark)
 
 if __name__ == "__main__":
     main()
