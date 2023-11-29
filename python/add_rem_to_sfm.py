@@ -109,13 +109,20 @@ def main() -> None:
         exit()
     
     for file_in, file_out in file_pairs:
+        if file_out.is_file:
+            print("The output file {file_out} already exists. Skipping")
+            continue
         lines = get_lines(file_in)
         book = get_id(lines)
         #remark = f"\\rem This draft of {book} was machine translated on {today} from the {source} using model {experiment}.  It should be reviewed and edited carefully."
         next_remark = remark.substitute(book = book, today = date.today(), description = description, experiment = experiment).replace("  ", " ")
-        lines.insert(1, next_remark)
-        save_file(file_out,lines)
-        print(next_remark)
+        if lines[1] == next_remark:
+            print(f"Remark already exists in the input file: {file_in}, making unchanged copy.")
+            save_file(file_out,lines)
+        else :
+            lines.insert(1, next_remark)
+            save_file(file_out,lines)
+            print(f"Added {next_remark} to file {file_out}")
 
 if __name__ == "__main__":
     main()
