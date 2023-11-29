@@ -24,9 +24,7 @@ def get_lines(file):
 
 def save_file(file, lines):
 
-    new_file = file.with_suffix(".rem.sfm")
-
-    with open(new_file, 'w', encoding='utf-8') as f_out:
+    with open(file, 'w', encoding='utf-8') as f_out:
         for line in lines:
             f_out.write(line + "\n")
 
@@ -44,8 +42,8 @@ def main() -> None:
     # Folder is the location of the files to be modified. E.g: S:\MT\experiments\FT-Naxi\NLLB1.3_hak_zh_nxq_2\infer\23000
     # The model name will be extracted from this path.
 
-    parser.add_argument("--folder", default=None, type=str, help="The folder containing the sfm files.")
-
+    parser.add_argument("--folder", default=None, type=Path, help="The folder containing the sfm files.")
+    parser.add_argument("--output", default=None, type=Path, help="The folder for the modified sfm files. Will be created if it doesn't exist.", required=False)
     #parser.add_argument("--experiment", default=None, type=str, help="The experiment that drafted the book.")
     parser.add_argument("--source", default=None, type=str, help="The source Bible the model translated.")
 
@@ -54,6 +52,10 @@ def main() -> None:
     remark = Template("\\rem This draft of $book was machine translated on $today from the $description using model $experiment. It should be reviewed and edited carefully.")
 
     folder = Path(args.folder)
+    output = False
+    if args.output:
+        output = Path(args.output) ; output.mkdir(parents=True, exist_ok=True) 
+
 
     if '\\' in str(folder):
         experiment_list = str(folder).split('\\')
@@ -66,6 +68,11 @@ def main() -> None:
         raise RuntimeError(f"\nLooking for the two folders above the 'infer' directory as the experiment name.\nCouldn't find the experiment from the folder: {folder}")
 
     files = [file for file in folder.glob("*.sfm") if file not in folder.glob("*.rem.sfm")]
+    
+    if output:    
+        file_pairs = [(file , output / file.name) for file in files]
+    else:
+        file_pairs = [(file, file.with_suffix(".rem.sfm")) for file in files]
 
     #print(type(files), files)
     
@@ -93,17 +100,21 @@ def main() -> None:
     #remark = f"\\rem This draft of {first_book_id} was machine translated on {today} from the {description} using model {experiment}.  It should be reviewed and edited carefully."
     
     print(f"The following line will be added to a copy of each of the {len(files)} sfm files in {folder}\n{first_remark}\n")
-    print("The copy will have the suffix .rem.sfm")
+    if output:
+        print(f"The modified files will be written to {output}")    
+    else:
+        print("The modified files will be written to the same folder and have the suffix .rem.sfm")
+    
     if not choose_yes_no(f"Continue adding y/n?"):
         exit()
-
-    for file in files:
-        lines = get_lines(file)
+    
+    for file_in, file_out in file_pairs:
+        lines = get_lines(file_in)
         book = get_id(lines)
         #remark = f"\\rem This draft of {book} was machine translated on {today} from the {source} using model {experiment}.  It should be reviewed and edited carefully."
         next_remark = remark.substitute(book = book, today = date.today(), description = description, experiment = experiment).replace("  ", " ")
         lines.insert(1, next_remark)
-        save_file(file,lines)
+        save_file(file_out,lines)
         print(next_remark)
 
 if __name__ == "__main__":
