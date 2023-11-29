@@ -109,8 +109,8 @@ def main() -> None:
         exit()
     
     for file_in, file_out in file_pairs:
-        if file_out.is_file:
-            print("The output file {file_out} already exists. Skipping")
+        if file_out.is_file():
+            print(f"The output file {file_out} already exists. Skipping")
             continue
         lines = get_lines(file_in)
         book = get_id(lines)
