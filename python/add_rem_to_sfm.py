@@ -43,8 +43,7 @@ def main() -> None:
     # The model name will be extracted from this path.
 
     parser.add_argument("--folder", default=None, type=Path, help="The folder containing the sfm files.")
-    parser.add_argument("--output", default=None, type=Path, help="The folder for the modified sfm files. Will be created if it doesn't exist.", required=False)
-    #parser.add_argument("--experiment", default=None, type=str, help="The experiment that drafted the book.")
+    parser.add_argument("--output", default=None, type=str, help="The subfolder for the modified sfm files. Will be created if it doesn't exist.", required=True)
     parser.add_argument("--source", default=None, type=str, help="The source Bible the model translated.")
 
     args = parser.parse_args()
@@ -52,10 +51,6 @@ def main() -> None:
     remark = Template("\\rem This draft of $book was machine translated on $today from the $description using model $experiment. It should be reviewed and edited carefully.")
 
     folder = Path(args.folder)
-    output = False
-    if args.output:
-        output = Path(args.output) ; output.mkdir(parents=True, exist_ok=True) 
-
 
     if '\\' in str(folder):
         experiment_list = str(folder).split('\\')
@@ -69,36 +64,28 @@ def main() -> None:
 
     files = [file for file in folder.glob("*.sfm") if file not in folder.glob("*.rem.sfm")]
     
-    if output:    
-        file_pairs = [(file , output / file.name) for file in files]
-    else:
-        file_pairs = [(file, file.with_suffix(".rem.sfm")) for file in files]
+    if not args.source:
+        first_file_lines = get_lines(files[0])
+        first_book_id =  get_id(first_file_lines)
+        description = get_description(first_file_lines)
 
-    #print(type(files), files)
-    
-    first_file_lines = get_lines(files[0])
-    first_book_id =  get_id(first_file_lines)
-    description = get_description(first_file_lines)
-    # Some ID lines also contain a remark.
-    if "\\rem" in description:
-        description = description.split("\\rem",1)[0]
+        # Some ID lines also contain a remark.
+        if "\\rem" in description:
+            description = description.split("\\rem",1)[0]
 
-    source = args.source
-    
-    if source:
-        description = source
-    
-    if not description or len(description) < 5:
-        print(f"The description of the source version is missing or very short: {description}")
+        print(f"The source version has this description on the ID line:\n{description}\n")   
+
+    elif len(args.source) < 5:
+        print(f"The description of the source version is missing or very short: {args.source}")
         if not choose_yes_no(f"Continue y/n?"):
             exit()
-
-    if not source and description:
-        print(f"The source version has this description on the ID line:\n{description}\n")
+        description = args.source
     
     first_remark = remark.substitute(book = first_book_id, today = date.today(), description = description, experiment = experiment).replace("  ", " ")
     #remark = f"\\rem This draft of {first_book_id} was machine translated on {today} from the {description} using model {experiment}.  It should be reviewed and edited carefully."
     
+    output = folder / args.output
+
     print(f"The following line will be added to a copy of each of the {len(files)} sfm files in {folder}\n{first_remark}\n")
     if output:
         print(f"The modified files will be written to {output}")    
@@ -108,6 +95,10 @@ def main() -> None:
     if not choose_yes_no(f"Continue adding y/n?"):
         exit()
     
+    
+    output.mkdir(parents=True, exist_ok=True)
+    file_pairs = [(file , output / file.name) for file in files]
+
     for file_in, file_out in file_pairs:
         if file_out.is_file():
             print(f"The output file {file_out} already exists. Skipping")
