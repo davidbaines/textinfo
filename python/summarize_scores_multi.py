@@ -448,14 +448,17 @@ def main() -> None:
         args.c = False
         args.i = False
 
-    try:
-        experiment_paths = [Path(exp_path).resolve() for exp_path in args.folders]
-    except OSError:
+    # try:
+    #     experiment_paths = [Path(exp_path).resolve() for exp_path in args.folders]
+    # except OSError:
 
-        print(
-            f"Could be an S3 bucket. Maybe use copy_with_dir.py to copy the data to a local drive."
-        )
-        exit()
+    #     print(
+    #         f"Could be an S3 bucket. Maybe use copy_with_dir.py to copy the data to a local drive."
+    #     )
+    #     exit()
+    
+    experiment_paths = [Path(folder) for folder in args.folders if Path(folder).is_dir]
+    
 
     exp_root_len = 0
     if args.output:
@@ -674,7 +677,7 @@ def main() -> None:
         write_csv(output_file, experiments, column_headers=column_headers)
         print(f"Report includes all experiments. {len(complete_experiments)} experiments have scores and {len(incomplete_experiments)} do not.")
         
-
+    print(f"The reports were written to {output_file}")
     #print(f"This is the first experiment data:\n{experiments[0]}")
 
     # print(f"The column headers for the csv file are: {output_fields}")
