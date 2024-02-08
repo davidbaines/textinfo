@@ -3,26 +3,25 @@ import fnmatch
 import os
 import re
 import shutil
+import toml
+from prompt_toolkit import prompt
 
 
 def copy_subfolders_and_files(input_folder, subfolder_names, output_folder, pattern_file):
     """
     Copies selected subfolders and files from the input folder to the output folder,
-    based on regular expression patterns specified in a text file.
+    based on patterns specified in a TOML file. Prompts the user for handling unmatched files.
 
     Args:
         input_folder (str): Path to the input folder.
         subfolder_names (list): List of names of subfolders to copy.
         output_folder (str): Path to the output folder.
-        pattern_file (str): Path to the text file containing filename patterns.
+        pattern_file (str): Path to the TOML file containing filename patterns.
     """
 
-    # Load regular expression patterns from the text file
-    patterns = {}
+    # Load patterns from the TOML file
     with open(pattern_file, 'r') as f:
-        for line in f:
-            pattern, action = line.strip().split()
-            patterns[pattern] = action == 'copy'
+        patterns = toml.load(f)
 
     # Create the output folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
@@ -40,12 +39,40 @@ def copy_subfolders_and_files(input_folder, subfolder_names, output_folder, patt
             file_path = os.path.join(subfolder_path, filename)
 
             # Check if the filename matches any pattern
-            for pattern, should_copy in patterns.items():
+            should_copy = True
+            for pattern in patterns.get("include", []):
                 if re.search(pattern, filename):
-                    if should_copy:
-                        # Copy the file
-                        shutil.copy2(file_path, output_subfolder_path)
-                    break  # Skip to the next file if a matching pattern is found
+                    should_copy = True
+                    break
+
+            for pattern in patterns.get("exclude", []):
+                if re.search(pattern, filename):
+                    should_copy = False
+                    break
+
+            if not should_copy:
+                # Ask user about unmatched files
+                answer = prompt(
+                    "File '{}' doesn't match any pattern. Copy it? (y/n)".format(filename)
+                )
+                if answer.lower() == 'y':
+                    pattern = prompt("Enter a pattern to match this file:")
+                    section = prompt("Add pattern to 'include' or 'exclude' (i/e)?")
+                    if section.lower() == 'i':
+                        patterns.setdefault("include", []).append(pattern)
+                    else:
+                        patterns.setdefault("exclude", []).append(pattern)
+
+                    # Update the TOML file
+                    with open(pattern_file, 'w') as f:
+                        toml.dump(patterns, f)
+
+                    # Copy the file
+                    shutil.copy2(file_path, output_subfolder_path)
+
+            else:
+                # Copy the file if matched
+                shutil.copy2(file_path, output_subfolder_path)
 
 def main():
     parser = argparse.ArgumentParser(description="Copy subfolders and files based on patterns.")
