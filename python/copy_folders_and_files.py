@@ -1,16 +1,17 @@
-import argparse
-import fnmatch
+Python
 import os
-import re
 import shutil
 import toml
+import re
 from prompt_toolkit import prompt
+from datetime import datetime
 
 
 def copy_subfolders_and_files(input_folder, subfolder_names, output_folder, pattern_file):
     """
     Copies selected subfolders and files from the input folder to the output folder,
     based on patterns specified in a TOML file. Prompts the user for handling unmatched files.
+    Modifies copied folder names by appending the date.
 
     Args:
         input_folder (str): Path to the input folder.
@@ -26,10 +27,13 @@ def copy_subfolders_and_files(input_folder, subfolder_names, output_folder, patt
     # Create the output folder if it doesn't exist
     os.makedirs(output_folder, exist_ok=True)
 
+    # Get current date
+    current_date = datetime.now().strftime("_%Y_%m_%d")
+
     # Iterate through the specified subfolders
     for subfolder_name in subfolder_names:
         subfolder_path = os.path.join(input_folder, subfolder_name)
-        output_subfolder_path = os.path.join(output_folder, subfolder_name)
+        output_subfolder_path = os.path.join(output_folder, subfolder_name + current_date)
 
         # Create the output subfolder
         os.makedirs(output_subfolder_path)
@@ -73,6 +77,8 @@ def copy_subfolders_and_files(input_folder, subfolder_names, output_folder, patt
             else:
                 # Copy the file if matched
                 shutil.copy2(file_path, output_subfolder_path)
+
+
 
 def main():
     parser = argparse.ArgumentParser(description="Copy subfolders and files based on patterns.")
