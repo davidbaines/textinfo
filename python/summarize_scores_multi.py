@@ -471,7 +471,7 @@ def main() -> None:
     scores_filename_prefix = r"scores-"
     ext = r".csv"
 
-    re_steps = re.compile("scores-(\d*.000)\.csv")
+    re_steps = re.compile("scores-(.*000)\.csv")
 
     scores_file_pattern = "**/" + scores_filename_prefix + "*" + ext
     preprocess_log_pattern = "preprocess.log"
@@ -509,7 +509,7 @@ def main() -> None:
     for experiment_config in experiment_configs:
         experiment_folder = experiment_config.parent
         effective_configs = list(experiment_folder.glob("effective-config-*.yml"))
-
+        print(f"Found {len(effective_configs)} effective config files in folder {experiment_folder} ")
         if effective_configs:
             effective_config_count += 1
             experiment, no_pairs = get_config_data(effective_configs[0], included_fieldnames)
@@ -518,54 +518,13 @@ def main() -> None:
             experiment, no_pairs = get_config_data(experiment_config, included_fieldnames)
 
         if not experiment:
+            #print(f"Skipping... {experiment}")
             continue
 
         max_pairs = max(max_pairs, no_pairs)
 
-        # Get data from the process log if it exists
-        preprocess_log = experiment["folder"] / "preprocess.log"
-        if preprocess_log.is_file():
-
-            preprocess_patterns_1 = {
-                "Git commit": ".*?INFO - Git commit: (.*)",
-                "All chars count": ".*?LOG\(INFO\) all chars count=(.*)",
-                "Alphabet size": ".*?LOG\(INFO\) Alphabet size=(.*)",
-                "Vocabulary size": ".*?INFO:tensorflow: - vocabulary size: (.*)",
-                "Alignment": ".*?INFO - Generating train alignments using (.*)",
-                "Train size": ".*?INFO - train size: (\d*?), val size: \d*?, test size: \d*?, dict size: \d*?, terms train size: \d*?",
-                "Val size": ".*?INFO - train size: \d*?, val size: (\d*?), test size: \d*?, dict size: \d*?, terms train size: \d*?",
-                "Test size": ".*?INFO - train size: \d*?, val size: \d*?, test size: (\d*?), dict size: \d*?, terms train size: \d*?",
-                "Dict size": ".*?INFO - train size: \d*?, val size: \d*?, test size: \d*?, dict size: (\d*?), terms train size: \d*?",
-                "Terms train size": ".*?INFO - train size: \d*?, val size: \d*?, test size: \d*?, dict size: \d*?, terms train size: (\d*)",
-            }
-
-            preprocess_patterns_2 = [
-                ".*?INFO - Git commit: (?P<git_commit>.*)",
-                ".*?LOG\(INFO\) all chars count=(?P<all_chars_count>.*)",
-                ".*?LOG\(INFO\) Alphabet size=(?P<alphabet_size>.*)",
-                ".*?INFO:tensorflow: - vocabulary size: (?P<vocabulary_size>.*)",
-                ".*?INFO - Generating train alignments using (?P<alignment>.*)",
-                ".*?INFO - train size: (?P<train_size>\d*?), val size: (?P<val_size>\d*?), test size: (?P<test_size>\d*?), dict size: (?P<dict_size>\d*?), terms train size: (?P<terms_train>\d*)",
-                ".*?num_tokens/piece=(?P<tokens_per_piece>\d*\.\d*)",
-            ]
-            # Tokens per piece pattern relies of the code finding all references and storing only the last.
-
-            preprocess_patterns = [re.compile(regex) for regex in preprocess_patterns_2]
-            experiment = get_data_from_log(
-                experiment, preprocess_log, preprocess_patterns
-            )
-
-        training_log = experiment["folder"] / "train.log"
-
-        if training_log.is_file():
-            training_patterns = [
-                re.compile(
-                    ".*?Evaluation result for step (?P<step>\d+): loss = (?P<loss>\d+.\d+) ; perplexity = (?P<perplexity>\d+.\d+) ; bleu = (?P<bleu>\d+.\d+)"
-                )
-            ]
-            experiment = get_data_from_log(experiment, training_log, training_patterns)
-
         score_files = list(experiment["folder"].glob(scores_file_pattern))
+        print(f"Found {len(score_files)} scores files in {experiment_folder}")
 
         best_and_last = [int(m.group(1)) for score_file in score_files if (m := re_steps.match(score_file.name))]
         if len(best_and_last) >= 1:
@@ -592,7 +551,7 @@ def main() -> None:
                         with open(score_file, "r", encoding="utf-8") as csvfile:
                             csvreader = csv.DictReader(csvfile, delimiter=",")
                             for i, row in enumerate(csvreader,1):
-                                #print(i,row)
+                                print(i,row)
 
                                 if row["book"] == "ALL":
                                     if row["scorer"] == "BLEU":

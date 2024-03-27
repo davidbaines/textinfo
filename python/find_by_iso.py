@@ -7,7 +7,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Search for files matching ISO codes in a directory"
     )
-    parser.add_argument("directory", type=str, help="Directory to search")
+    parser.add_argument("--directory", type=str, default="S:/MT/scripture/", help="Directory to search")
     parser.add_argument(
         "iso_codes", type=str, nargs="+", help="List of ISO codes to search for"
     )
