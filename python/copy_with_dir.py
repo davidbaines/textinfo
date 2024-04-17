@@ -15,15 +15,15 @@ def choose_yes_no(prompt: str) -> bool:
         return False
 
         
-source_folder_str = "S:/MT/experiments"
-dest_folder_str = "E:/Work/Pilot_projects/Themne"
+source_folder_str = "S:/MT/experiments/clowder/"
+dest_folder_str = "C:/Users/David/Documents/FT-Luang"
 
 source = Path(source_folder_str)
 dest = Path(dest_folder_str) 
 
 source_drive = "S:"
-dest_drive = "E:"
-subfolder = "TEM"
+dest_drive = "C:"
+subfolder = "FT-Luang_1HnvD-2YAqxC3yQxYPlHyWNhHA-GrrPca"
 source_subfolder = source / subfolder
 
 subfolders = [folder for folder in source_subfolder.glob("*") if folder.is_dir()]

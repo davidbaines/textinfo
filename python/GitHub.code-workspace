@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "S:/eBible/MT/experiments"
+		}
+	],
+	"settings": {
+		"notebook.output.textLineLimit": 500
+	}
+}

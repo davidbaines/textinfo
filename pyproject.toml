@@ -1,11 +1,16 @@
 [tool.poetry]
 name = "textinfo"
 version = "0.1.0"
+<<<<<<< HEAD
 description = "\"Text file utilities\""
+=======
+description = "Text info"
+>>>>>>> abaa1def9df5f2c93b6a719e70aa095097590bef
 authors = ["David Baines <david_baines@sil.org>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
+<<<<<<< HEAD
 python = "^3.7"
 transformers = "^4.23.1"
 sentencepiece = "^0.1.97"
@@ -22,6 +27,16 @@ docx = "^0.2.4"
 pyyaml = "^6.0"
 pywin32 = "^306"
 
+=======
+python = "^3.8"
+prompt-toolkit = "^3.0.43"
+toml = "^0.10.2"
+pyyaml = "^6.0.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.1.1"
+isort = "^5.13.2"
+>>>>>>> abaa1def9df5f2c93b6a719e70aa095097590bef
 
 [build-system]
 requires = ["poetry-core"]

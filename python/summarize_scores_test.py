@@ -11,9 +11,17 @@ from pprint import pprint
 import re
 import time
 import yaml
+import boto3
+
+TMP = Path("E:\Work\TMP")
 
 csv.register_dialect("default")
 
+def read_s3_text_file(bucket, key):
+    s3 = boto3.client('s3')
+    response = s3.get_object(Bucket=bucket, Key=key)
+    data = response['Body'].read().decode('utf-8')  # decoding the bytes to string
+    return data
 
 def find_last_in_file(in_file, pattern, last_n=1):
 
@@ -456,8 +464,13 @@ def main() -> None:
         args.c = False
         args.i = False
 
+    all_folders = []
+    for folder in args.folders:
+        exp_path = Path(folder)
+        all_folders.extend(f for f in exp_path.rglob('*Arabic*') if f.is_dir())
+
     try:
-        experiment_paths = [Path(exp_path).resolve() for exp_path in args.folders]
+        experiment_paths = all_folders  #[Path(exp_path).resolve() for exp_path in args.folders]
     except OSError:
 
         print(
@@ -465,7 +478,7 @@ def main() -> None:
         )
         exit()
 
-    exp_root_len = 0
+    
     if args.output:
         output_path = Path(args.output)
     else:

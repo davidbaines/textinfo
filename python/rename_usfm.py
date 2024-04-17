@@ -232,7 +232,7 @@ def get_destination_file_from_book(file):
         if not is_ot(book_number):
             book_number += 1 
         
-        new_filename = f"{book_number:02}{book}{project_name}.usfm"
+        new_filename = f"{book_number:02}{book}{project_name}.sfm"
     
         return file.with_name(new_filename)
 
@@ -248,26 +248,29 @@ def rename_files(renames):
 
 # import machine.scripture.canon 
 root_folder = Path("E:/Work/Pilot_projects/projects")
+root_folder = Path("E:/Work/Importing/")
 
-source_folders = [source_folder for source_folder in root_folder.iterdir()]
-source_folders = [root_folder / "dzo"]
+#source_folders = [source_folder for source_folder in root_folder.iterdir()]
+source_folders = [root_folder / "CNV"]
 
 print(f"Found {len(source_folders)} source folders: {source_folders}")
 
 for source_folder in source_folders:
     project_name = source_folder.name
-    source_files = sorted([source_file for source_file in source_folder.glob("*") if source_file.is_file])
+    source_files = sorted([source_file for source_file in source_folder.glob("*.sfm") if source_file.is_file])
     filtered_files = [file for file in source_files if any(BOOK_ID.upper() in file.name.upper() for BOOK_ID in ALL_BOOK_IDS)]
     for filtered_file in filtered_files:
         print(filtered_file.name)
 
     renames = [(file, get_destination_file_from_book(file)) for file in filtered_files]
+    print(renames)
+
 
     # print matched files with corresponding name
     for src, dest in renames:
         print(f"{src.name}         ->    {dest.name}")
 
-exit()
+
 if renames:
     source, dest = renames[0]
     print(f"Will rename {len(renames)} files. E.g. {source} to {dest}")
@@ -277,7 +280,23 @@ if renames:
     print(f"Renamed {len(renames)} files.")
 
 
+# Next step save each file as UTF-8
+if renames:
+    output_folder = source_folders[0] / "utf-8_2"
+    for source_file, destination_file in renames:
+        output_file = output_folder / source_file.name
+        with open(destination_file, 'r', encoding="936") as f_in:
+            lines = f_in.readlines()
+
+        with open(output_file, 'w', encoding='utf-8') as f_out:
+            f_out.writelines(lines)
+            
+    print(f"Saved {len(renames)} files as UTF-8 in {output_folder}.")
+    renames = []    
+
+exit()
 # Next step
+
 for source_folder in source_folders:
     source_files = sorted([source_file for source_file in source_folder.glob('*.usfm') if source_file.name[2] == "-"])
     if source_files:
