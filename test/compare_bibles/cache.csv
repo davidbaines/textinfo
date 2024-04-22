@@ -1,0 +1,4 @@
+hash1,hash2,filename1,filename2,num_verses_bible1,num_verses_bible2,num_identical_verses,num_different_verses
+aa092f6514527282,ab3bbaac6d31c845,F:\GitHub\davidbaines\textinfo\test\bibles1\blx-AMIU_2022_04_19.txt,F:\GitHub\davidbaines\textinfo\test\bibles1\id-BIMK.txt,11436.0,31155.0,21.0,11414.0
+aa092f6514527282,442ab77c974b9831,F:\GitHub\davidbaines\textinfo\test\bibles1\blx-AMIU_2022_04_19.txt,F:\GitHub\davidbaines\textinfo\test\bibles1\tl-AMIBT_2022_04_19.txt,11436.0,11418.0,133.0,11284.0
+ab3bbaac6d31c845,442ab77c974b9831,F:\GitHub\davidbaines\textinfo\test\bibles1\id-BIMK.txt,F:\GitHub\davidbaines\textinfo\test\bibles1\tl-AMIBT_2022_04_19.txt,31155.0,11418.0,21.0,11395.0

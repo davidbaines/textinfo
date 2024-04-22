@@ -3,6 +3,12 @@ import argparse
 from datetime import date
 from pathlib import Path
 from string import Template
+from pathlib import Path
+
+# target = Path('out/soong/build.ninja')
+# mtime = target.stat().st_mtime
+# atime = target.stat().st_atime
+# ctime = target.stat().st_ctime
 
 def choose_yes_no(prompt: str) -> bool:
 

@@ -1,0 +1,171 @@
+You don't need to import the Dict class from the typing module in order to use it as a type hint in your code. The Dict class is already available for use as a type hint, so you can use it in your code without importing it.
+
+You can use it like this:
+
+Copy code
+def my_function(my_dict: Dict[str, int]) -> None:
+    pass
+This indicates that my_dict is a dictionary where keys are strings and values are integers.
+
+You can also indicate specific types for the keys and values. For example:
+
+Copy code
+def my_function(my_dict: Dict[str, List[int]]) -> None:
+    pass
+This indicates that my_dict is a dictionary where keys are strings and values are lists of integers.
+
+
+
+You can add typing hints to this code by adding the type of each variable and function parameter using a colon followed by the type. 
+For example, you can change the following line:
+
+
+parser = argparse.ArgumentParser(
+to
+
+Copy code
+parser: argparse.ArgumentParser = argparse.ArgumentParser(
+
+You can also annotate the return types of functions using the -> symbol.
+
+Here is an example of how you might add type hints to the entire code:
+
+
+Copy code
+import argparse
+from pathlib import Path
+from typing import List
+
+def main() -> None:
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(
+        description="Download, unzip and extract text corpora from eBible."
+    )
+    parser.add_argument(
+        "-d",
+        "--force_download",
+        default=False,
+        action="store_true",
+        help="Set this flag to overwrite all previous data and start again.",
+    )
+    parser.add_argument(
+        "-s",
+        "--overwrite_settings",
+        default=False,
+        action="store_true",
+        help="Set this flag to overwrite the settings.xml files.",
+    )
+    parser.add_argument(
+        "-e",
+        "--overwrite_extracts",
+        default=False,
+        action="store_true",
+        help="Set this flag to overwrite the extracted files.",
+    )
+    parser.add_argument(
+        "-l",
+        "--overwrite_licences",
+        default=False,
+        action="store_true",
+        help="Set this flag to overwrite the licences.tsv file.",
+    )
+    parser.add_argument("folder", type=str, help="The base folder where others will be created.")
+
+    args = parser.parse_args()
+    # print(args)
+    # exit()
+
+    # Define base folder
+    base: Path = Path(args.folder)
+
+    translations_csv_url: str = r"https://ebible.org/Scriptures/translations.csv"
+    eBible_url: str = r"https://ebible.org/Scriptures/"
+    file_suffix: str = "_usfm.zip"
+
+    # The corpus folder is for the verse aligned text files.
+    corpus_folder: Path = base / "corpus"
+
+    # The redistributable_folder folder is for the redistributable_folder downloaded files.
+    # To this folder we add a settings.xml file that we create.
+    # The settings.xml file is required for the extraction process.
+    redistributable_folder: Path = base / "projects"
+
+    # Folder for the non-redistributable projects.
+    non_redistributable_folder: Path = base / "private_projects"
+
+    # The zipped folder is where we download files from eBible.org
+    downloads_folder: Path = base / "downloads"
+
+    metadata_folder: Path = base / "metadata"
+
+    logs: Path = base / "logs"
+
+    year, month, day, hour, minute = map(int, strftime("%Y %m %d %H %M").split())
+    log_suffix: str = f"_{year}_{month}_{day}
+
+
+
+
+Question:
+How can I add typing hints to Python code for a function that returns two lists?
+Here is the function:
+
+def get_redistributable(translations_csv) -> List, List:
+
+    redistributable_files = []
+    all_files = []
+
+    with open(translations_csv, encoding="utf-8-sig", newline="") as csvfile:
+        reader = DictReader(csvfile, delimiter=",", quotechar='"')
+        for row in reader:
+            all_files.append(row["translationId"])
+
+            if row["Redistributable"] == "True":
+                redistributable_files.append(row["translationId"])
+
+        return all_files, redistributable_files
+		
+Answer:
+You can add typing hints to the function by specifying the return types of the function using the Tuple class from the typing module. Here is an example of how you could add typing hints to the get_redistributable function:
+
+Copy code
+from typing import List, Tuple
+
+def get_redistributable(translations_csv: str) -> Tuple[List[str], List[str]]:
+    redistributable_files = []
+    all_files = []
+
+    with open(translations_csv, encoding="utf-8-sig", newline="") as csvfile:
+        reader = DictReader(csvfile, delimiter=",", quotechar='"')
+        for row in reader:
+            all_files.append(row["translationId"])
+
+            if row["Redistributable"] == "True":
+                redistributable_files.append(row["translationId"])
+
+    return all_files, redistributable_files
+	
+It indicates that the function get_redistributable takes one argument translations_csv which is a string, and returns a tuple of two lists, where each list contains strings.
+
+You can also use the List class directly instead of Tuple[List[str], List[str]]. The two lists will be returned as a tuple.
+
+Copy code
+from typing import List
+def get_redistributable(translations_csv: str) -> List[str], List[str]:
+  ...
+
+
+Question:
+Is there any point to adding type hints for assignments that are very obvious?
+
+Answer:
+Adding type hints for assignments that are obvious can be useful for a few reasons:
+Documentation: Type hints make it clear what the intended type of a variable is, even if the type is obvious from the assignment.
+This can make the code more readable and easier to understand for other developers who may be working on the codebase. 
+
+Type checking: Some linters and type checkers use the type hints to check the code for type errors. 
+This can help catch bugs early on in the development process, before the code is run.
+
+Editor support: Some IDEs and code editors use the type hints to provide autocompletion and other features that can help improve the developer's productivity.
+Makes the code more robust Type hints can also make the code more robust to changes, as it makes clear what the expected types are, if the value changes or changed by mistake, it will be easier to detect and fix.
+
+It's up to you as a developer whether you want to add type hints to your code, especially if the types are very obvious. It's good practice to use them to make the code more readable and to help catch potential type errors.

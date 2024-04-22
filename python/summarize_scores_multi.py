@@ -407,6 +407,40 @@ def get_fieldnames():
 
     return all_fieldnames, omit
 
+def folder_contains_config(folder):
+    config = folder / "config.yml"
+    return config.is_file()
+
+
+def folder_contains_scores(folder):
+    scores_files = folder.glob("scores-*.csv")
+    return len([file for file in scores_files]) > 0
+
+
+def get_complete(folders):
+    complete_experiment_dirs = []
+
+    sub_folders = []
+    for folder in folders:
+        sub_folders.extend([f  for f in folder.glob("*") if f.is_dir()])
+        
+    for sub_folder in sub_folders:
+        if folder_contains_config(sub_folder) and folder_contains_scores(sub_folder):
+            complete_experiment_dirs.append(sub_folder)
+
+    return complete_experiment_dirs
+
+
+def get_incomplete(folders):
+    incomplete_experiment_dirs = []
+    for folder in folders:
+        if folder_contains_config(folder) and not folder_contains_scores(folder):
+            incomplete_experiment_dirs.append(folder)
+    return incomplete_experiment_dirs
+    
+     
+
+    
 
 def main() -> None:
 
@@ -414,7 +448,7 @@ def main() -> None:
     timestarted = time.time()
 
     parser = argparse.ArgumentParser(
-        description="Find and summarize SILNLP experiment scores. If both -c and -i are set all experiments are reported."
+        description="Find and summarize SILNLP experiment scores. By default, only complete experiments are reported."
     )
     parser.add_argument(
         "folders",
@@ -444,23 +478,26 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-    if args.c and args.i:
-        args.c = False
+    if not args.c and not args.i:
+        args.c = True
         args.i = False
 
-    # try:
-    #     experiment_paths = [Path(exp_path).resolve() for exp_path in args.folders]
-    # except OSError:
+    folders = [Path(folder) for folder in args.folders] 
 
-    #     print(
-    #         f"Could be an S3 bucket. Maybe use copy_with_dir.py to copy the data to a local drive."
-    #     )
-    #     exit()
+    #Add as a filter argument.
+    #patterns = ["FT-*", "BT-*"]
+
+    all_folders = []
+    for folder in folders:
+        all_folders.extend(folder for folder in folder.rglob('*') if folder.is_dir())
     
-    experiment_paths = [Path(folder) for folder in args.folders if Path(folder).is_dir]
+    print(f"Checking {len(all_folders)} folders for scores files.")
+
+    if args.c:
+        experiment_paths = get_complete(folders)
+        print(f"Found {len(experiment_paths)} complete experiment folders.")
     
 
-    exp_root_len = 0
     if args.output:
         output_path = Path(args.output)
     else:
@@ -490,6 +527,7 @@ def main() -> None:
     experiment_configs = []
 
     for experiment_path in experiment_paths:
+        print(f"Processing {experiment_path}")
         for config in experiment_path.rglob("config.yml"):
             if config.is_file():
                 experiment_configs.append(config)
@@ -505,8 +543,10 @@ def main() -> None:
     all_fieldnames, omit = get_fieldnames()
     included_fieldnames = {fieldname  for fieldname in all_fieldnames if fieldname not in omit}
     column_headers = [column_header for fieldname, column_header in all_fieldnames.items() if fieldname not in omit]
+    
+    print(f"Found {len(experiment_configs)} experiment configuations")
 
-    for experiment_config in experiment_configs:
+    for experiment_config in experiment_configs[:100]:
         experiment_folder = experiment_config.parent
         effective_configs = list(experiment_folder.glob("effective-config-*.yml"))
         print(f"Found {len(effective_configs)} effective config files in folder {experiment_folder} ")
@@ -552,24 +592,36 @@ def main() -> None:
                             csvreader = csv.DictReader(csvfile, delimiter=",")
                             for i, row in enumerate(csvreader,1):
                                 print(i,row)
+                                try :
+                                    all_found = row["book"] == "ALL"
+                                except KeyError:
+                                    score = f"Can't read the BLEU score on row {i} of file {score_file}"
+                                try:
+                                    bleu_found = row["scorer"] == "BLEU"
+                                except KeyError:
+                                    score = f"Can't read the BLEU score on row {i} of file {score_file}"
 
-                                if row["book"] == "ALL":
-                                    if row["scorer"] == "BLEU":
-                                        try:
-                                            score, _ = row["score"].split("/", 1)   
-                                        except ValueError:
-                                            print(f"Can't read the BLEU score on row {i} of file {score_file}")
-                                            exit()
-                                    else:
-                                        score = row["score"]
+                                    if all_found:
+                                        if bleu_found:
+                                            try:
+                                                score, _ = row["score"].split("/", 1)   
+                                            except (ValueError, KeyError):
+                                                score = f"Can't read the BLEU score on row {i} of file {score_file}"
+                                                
+                                        else:
+                                            try:
+                                                score = row["score"]
+                                            except (ValueError, KeyError):
+                                                score = f"Can't read the BLEU score on row {i} of file {score_file}"    
+                                            score = row["score"]
 
-                                    if steps == best_steps:
-                                        experiment["Best steps"] = steps
-                                        experiment[f"Best {row['scorer']} {row['book']}"] = score
-                                    
-                                    elif steps == last_steps:
-                                        experiment["Last steps"] = steps
-                                        experiment[f"Last {row['scorer']} {row['book']}"] = score
+                                        if steps == best_steps:
+                                            experiment["Best steps"] = steps
+                                            experiment[f"Best {row['scorer']} {row['book']}"] = score
+                                        
+                                        elif steps == last_steps:
+                                            experiment["Last steps"] = steps
+                                            experiment[f"Last {row['scorer']} {row['book']}"] = score
                     else:
                         continue
                 #print(experiment)
@@ -625,12 +677,12 @@ def main() -> None:
     if args.c:
         write_csv(output_file, complete_experiments, column_headers=column_headers)
         print(f"Wrote results only for the {len(complete_experiments)} experiments with scores to {output_file}")
-        print(f"There are {len(incomplete_experiments)} experiments without scores.")
+        print(f"There are {len(complete_experiments)} experiments without scores.")
 
     elif args.i:
         write_csv(output_file, incomplete_experiments, column_headers=column_headers)
         print(f"Wrote results only for the {len(incomplete_experiments)} experiments without scores to {output_file}")
-        print(f"There are {len(complete_experiments)} experiments with scores.")
+        print(f"There are {len(incomplete_experiments)} experiments with scores.")
 
     else:
         write_csv(output_file, experiments, column_headers=column_headers)
