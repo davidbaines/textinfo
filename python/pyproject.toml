@@ -12,6 +12,7 @@ pyyaml = "^6.0.1"
 nltk = "^3.8.1"
 odfpy = "^1.4.1"
 hanzidentifier = "^1.2.0"
+numpy = "1.19.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
