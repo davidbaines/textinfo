@@ -21,24 +21,32 @@ def main():
     
     parser = argparse.ArgumentParser(description="Clean Paratext projects.")
     parser.add_argument('--input',  type=Path, default = Path("S:/Paratext/projects"), help="Folder to search")
-    args = parser.parse_args()
+    parser.add_argument('--careful',  action='store_true', help="Only delete Notes and Access")
     
+    args = parser.parse_args()
     input = Path(args.input)
+    careful = args.careful
+
+    if careful:
+        file_patterns = ["Notes", "User" "Access"]
+    else:
+        file_patterns = ["Notes", "unique", "licence", "license", "backup", "Print", "User" "Access"]
 
     projects = get_sub_folders(input)
 
-    
     for project in projects:
+
         sub_folders = get_sub_folders(project)
-        files_to_delete  = [ f for f in project.glob("*") if f.is_file() and any(string in f.name for string in ["Notes", "unique", "licence", "license", "backup", "Print", "User" "Access"]) ]
-        if sub_folders or files_to_delete:
-            if True: #choose_yes_no(f"Delete unnecessary files and folders from {project}?"):
-                for sub_folder in sub_folders:
-                    shutil.rmtree(sub_folder)
-                    print(f"Attempted to delete {sub_folder}")
-                for file_to_delete in files_to_delete:
-                    file_to_delete.unlink()
-                    print(f"Attempted to delete {file_to_delete}")
+        files_to_delete  = [ f for f in project.glob("*") if f.is_file() and any(string in f.name for string in file_patterns) ]
+        if not careful:
+            # Remove all subfolders
+            for sub_folder in sub_folders:
+                shutil.rmtree(sub_folder)
+                print(f"Attempted to delete {sub_folder}")
+        
+        for file_to_delete in files_to_delete:
+            file_to_delete.unlink()
+            print(f"Attempted to delete {file_to_delete}")
 
 if __name__ == "__main__":
     main()
