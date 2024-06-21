@@ -216,7 +216,7 @@ def choose_yes_no(prompt: str) -> bool:
         return False
 
 
-def get_destination_file_from_book(file):
+def get_destination_file_from_book(file,add_project):
 
     project_name = file.parent.name
     book = None
@@ -231,9 +231,11 @@ def get_destination_file_from_book(file):
         #Add one to NT and DC book numbers:
         if not is_ot(book_number):
             book_number += 1 
-        
-        new_filename = f"{book_number:02}{book}{project_name}.sfm"
-    
+        if add_project:
+            new_filename = f"{book_number:02}{book}{project_name}.sfm"
+        else:
+            new_filename = f"{book_number:02}{book}.sfm"
+
         return file.with_name(new_filename)
 
 
@@ -249,9 +251,10 @@ def rename_files(renames):
 # import machine.scripture.canon 
 root_folder = Path("E:/Work/Pilot_projects/projects")
 root_folder = Path("E:/Work/Importing/")
+root_folder = Path("E:/Work/Importing/Ross_Webb/Paratext/projects")
 
 #source_folders = [source_folder for source_folder in root_folder.iterdir()]
-source_folders = [root_folder / "CNV"]
+source_folders = [root_folder / "BTs_Checked"]
 
 print(f"Found {len(source_folders)} source folders: {source_folders}")
 
@@ -262,30 +265,28 @@ for source_folder in source_folders:
     for filtered_file in filtered_files:
         print(filtered_file.name)
 
-    renames = [(file, get_destination_file_from_book(file)) for file in filtered_files]
-    print(renames)
+    renames = [(file, get_destination_file_from_book(file,add_project=False)) for file in filtered_files]
 
 
+if renames:
+    # print(renames)
+   
     # print matched files with corresponding name
     for src, dest in renames:
         print(f"{src.name}         ->    {dest.name}")
 
-
-if renames:
-    source, dest = renames[0]
-    print(f"Will rename {len(renames)} files. E.g. {source} to {dest}")
-    if not choose_yes_no("Continue with renaming? y/n?"):
+    if not choose_yes_no("Will rename {len(renames)} files as shown. Continue y/n?"):
         exit()
     rename_files(renames)
     print(f"Renamed {len(renames)} files.")
 
 
-# Next step save each file as UTF-8
+#Optionally save each file as UTF-8
 if renames:
-    output_folder = source_folders[0] / "utf-8_2"
+    output_folder = source_folders[0] / "utf-8"
     for source_file, destination_file in renames:
         output_file = output_folder / source_file.name
-        with open(destination_file, 'r', encoding="936") as f_in:
+        with open(destination_file, 'r') as f_in:
             lines = f_in.readlines()
 
         with open(output_file, 'w', encoding='utf-8') as f_out:
@@ -295,8 +296,6 @@ if renames:
     renames = []    
 
 exit()
-# Next step
-
 for source_folder in source_folders:
     source_files = sorted([source_file for source_file in source_folder.glob('*.usfm') if source_file.name[2] == "-"])
     if source_files:

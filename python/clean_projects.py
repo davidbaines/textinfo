@@ -20,7 +20,7 @@ def choose_yes_no(prompt: str) -> bool:
 def main():
     
     parser = argparse.ArgumentParser(description="Clean Paratext projects.")
-    parser.add_argument('--input',  type=Path, default = Path("S:/Paratext/projects"), help="Folder to search")
+    parser.add_argument('input',  type=Path, default = Path("S:/Paratext/projects"), help="Folder to search")
     parser.add_argument('--careful',  action='store_true', help="Only delete Notes and Access")
     
     args = parser.parse_args()

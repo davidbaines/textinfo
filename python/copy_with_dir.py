@@ -15,15 +15,15 @@ def choose_yes_no(prompt: str) -> bool:
         return False
 
         
-source_folder_str = "S:/MT/experiments/clowder/"
-dest_folder_str = "C:/Users/David/Documents/FT-Luang"
+source_folder_str = "S:/MT/experiments/FT-AytaMagIndi"
+dest_folder_str = "C:/Users/David/Documents/FT-AytaMagIndi"
 
 source = Path(source_folder_str)
 dest = Path(dest_folder_str) 
 
 source_drive = "S:"
 dest_drive = "C:"
-subfolder = "FT-Luang_1HnvD-2YAqxC3yQxYPlHyWNhHA-GrrPca"
+subfolder = ""
 source_subfolder = source / subfolder
 
 subfolders = [folder for folder in source_subfolder.glob("*") if folder.is_dir()]
@@ -63,7 +63,7 @@ for subfolder in subfolders:
 filtered_files_to_copy = []
 for file_to_copy in files_to_copy:
     
-    copy_to = dest / str(file_to_copy.parent)[len(source_folder_str) + 1:] / file_to_copy.name
+    copy_to = dest / file_to_copy.parent
     #print(f"Checking to see if {copy_to} exists: {copy_to.is_file()}.")
     if not copy_to.is_file():
         filtered_files_to_copy.append((file_to_copy, copy_to))
@@ -85,10 +85,10 @@ if filtered_files_to_copy:
         source_file, dest_file = files
         #print(s,d)
         #print(s.is_file(), d.is_file())
-        dest_folder = dest / str(source_file.parent)[len(source_folder_str) + 1:]
-        #if not dest_folder.is_dir():
-        #    print(f"Creating folder:  {dest_folder}")
-        dest_folder.mkdir(parents=True, exist_ok=True)
+        dest_folder = dest / source_file.parent
+        if not dest_folder.is_dir():
+            print(f"Creating folder:  {dest_folder}")
+            dest_folder.mkdir(parents=True, exist_ok=True)
 
         # Write an exact copy of the file from the source to the new destination folder if necessary.
         #print(f"Writing:  {dest_file}")

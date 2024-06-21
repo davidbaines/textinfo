@@ -2,7 +2,8 @@ import argparse
 import os
 from pathlib import Path
 import re
-from ..common.environment import SIL_NLP_ENV
+#from ..common.environment import SIL_NLP_ENV
+silnlp_folder = Path("F:\Github\silnlp")
 
 BIBLE = {
     "GEN": 50,
@@ -80,7 +81,8 @@ def get_sfm_files(project_dir):
     return [file for file in project_dir.glob("*") if file.is_file() and file.suffix[1:].lower() in ["sfm", "usfm"]]
 
 def get_vrefs():
-    vref_file = SIL_NLP_ENV.assets_dir / "vref.txt"
+    #vref_file = SIL_NLP_ENV.assets_dir / "vref.txt"
+    vref_file = silnlp_folder / "silnlp" / "assets" / "vref.txt"
     with open(vref_file) as vref_f:
         return [line.strip() for line in vref_f.readlines()]
 
@@ -212,7 +214,7 @@ def main():
     parser.add_argument(
         "--input_folder",
         type=Path,
-        help="The vref file to convert.",
+        help="Convert all the txt files in the folder.",
     )
     parser.add_argument(
         "--output_folder",

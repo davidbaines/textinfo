@@ -692,10 +692,10 @@ def get_character_data(char_counts,file=""):
 def main():
     
     parser = argparse.ArgumentParser(description="Write csv reports about the characters found in multiple files.")
-    parser.add_argument('--input_folder',  type=Path,                                                help="Folder to search")
+    parser.add_argument('--input_folder',  type=Path,           default="S:\MT\scripture",           help="Folder to search")
     parser.add_argument('--output_folder', type=Path,                                                help="Folder for the output results. The default is the current folder.", required=False)
     parser.add_argument('--extension',     type=str,            default="txt",                       help="Specify which files to read by extension. The default is 'txt'.")
-    parser.add_argument('--input_files',   nargs="+",           default=[],                          help="Files to read. Ignores input folder and extension argument.")
+    parser.add_argument('--files',         nargs="+",           default=[],                          help="File names to read.")
     parser.add_argument('--split_token',   action="store_true", default=False,                       help="Count the indiviual characters in the <range> token.")
     parser.add_argument("--summary",       type=str,            default="character_summary.csv",     help="The filename for the summary csv file.")
     parser.add_argument("--full",          type=str,            default="character_report.csv",      help="The filename for the summary csv file.")
@@ -723,8 +723,9 @@ def main():
     csv.register_dialect('default')
 
 
-    if len(args.input_files) > 0:
-        files_found = sorted([Path(file) for file in args.input_files])
+    if len(args.files) > 0:
+        
+        files_found = sorted([Path(file) for file in args.files])
 
         print("Found the following files:")
         for file in files_found:
