@@ -26,13 +26,14 @@ def load_language_data(file_path):
         family_data.setdefault(family, []).append(iso)
 
     return language_data, country_data, family_data
-
+   
 
 def process_iso_codes(iso_codes, language_data, country_data, family_data, nllb_isos):
     iso_set = set(iso_codes)
 
     for iso in iso_codes:
         if iso in language_data:
+
             lang_info = language_data[iso]
             print(
                 f"{iso}: {lang_info['Name']}, {lang_info['Country']}, {lang_info['Family']}"
@@ -46,10 +47,9 @@ def process_iso_codes(iso_codes, language_data, country_data, family_data, nllb_
 
     # Remove iso codes not in NLLB
     nllb_set = set(nllb_isos)
-    iso_set_in_nllb = iso_set.intersection(nllb_set)
+    iso_set_in_nllb = sorted(iso_set.intersection(nllb_set))
 
-    print("\nISO codes in the overall set that are in NLLB:")
-    print(sorted(iso_set_in_nllb))
+    return iso_set_in_nllb
 
 
 def main():
@@ -265,8 +265,15 @@ def main():
         "zul",
     ]
 
-    process_iso_codes(iso_codes, language_data, country_data, family_data, nllb_isos)
+    isos_in_nllb = process_iso_codes(iso_codes, language_data, country_data, family_data, nllb_isos)
 
+    print(f"\nThese {len(isos_in_nllb)} languages are in the same language family, or country and known to NLLB:")
+    print(isos_in_nllb)
+    for iso in isos_in_nllb:
+        lang_info = language_data[iso]
+        print(
+            f"{iso}: {lang_info['Name']}, {lang_info['Country']}, {lang_info['Family']}"
+        )
 
 if __name__ == "__main__":
     main()

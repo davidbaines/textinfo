@@ -33,6 +33,7 @@ def main():
         file_patterns = ["Notes", "unique", "licence", "license", "backup", "Print", "User" "Access"]
 
     projects = get_sub_folders(input)
+    print(f"Found {len(projects)} folders in the {input} folder.")
 
     for project in projects:
 

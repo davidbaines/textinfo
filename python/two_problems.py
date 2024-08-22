@@ -16,7 +16,7 @@ regex_patterns = {
         "type": "replacement",
         "find": regex.compile(r'a'),
         "replace": "b"
-    }
+    },
 }
 
 def list_expressions():
