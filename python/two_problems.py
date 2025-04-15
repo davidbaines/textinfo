@@ -17,6 +17,12 @@ regex_patterns = {
         "find": regex.compile(r'a'),
         "replace": "b"
     },
+    3: {
+        "description": "Remove 'nd markers'",
+        "type": "deletion",
+        "find": regex.compile(r'\\nd\*'),
+        "replace": ""        
+    },
 }
 
 def list_expressions():
