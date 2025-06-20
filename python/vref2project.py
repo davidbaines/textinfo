@@ -212,12 +212,12 @@ def main():
         help="The vref file to convert.",
     )
     parser.add_argument(
-        "--input_folder",
+        "--input-folder",
         type=Path,
         help="Convert all the txt files in the folder.",
     )
     parser.add_argument(
-        "--output_folder",
+        "--output-folder",
         type=Path,
         help="The path to the Paratext projects folder. The project folder will be created inside this folder.",
     )
@@ -272,6 +272,8 @@ def main():
         count = 0 
         for book in usfm_data:
             book_number = list(BIBLE.keys()).index(book) + 1
+            if book_number > 39:
+                book_number += 1
             
             sfm_file = project_folder / f"{book_number:02}{book}.sfm"
             if save_to_usfm(book, usfm_data, sfm_file):

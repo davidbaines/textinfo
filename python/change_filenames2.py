@@ -1,4 +1,5 @@
 import argparse
+
 from pathlib import Path
 
 def rename_files(folder, from_ext='.SFM', to_ext='.SFM', from_suffix=None, to_suffix=None, dry_run=True):
@@ -45,8 +46,13 @@ def rename_files(folder, from_ext='.SFM', to_ext='.SFM', from_suffix=None, to_su
             print(f"Would rename '{file}' to '{new_file}'")
     elif new_files and not dry_run:
         for file, new_file in new_files.items():
-            file.rename(new_file)
-            print(f"Attempted to rename '{file}' to '{new_file}'")
+            try:
+                file.rename(new_file)
+                print(f"Attempted to rename '{file}' to '{new_file}'")
+            except FileExistsError:
+                print(f"Attempted to rename '{file}' to '{new_file}', but a file of that name already exists.")
+
+            
     elif not new_files:
         print(f"No file names would be changed.")
         for file in files:
@@ -64,6 +70,11 @@ def main():
     parser.add_argument("-d", "--dry-run", action='store_true', default=False, help="Print the proposed changes only")
     args = parser.parse_args()
     
+    if args.from_ext[0] != '.':
+        args.from_ext = '.' + args.from_ext
+    if args.to_ext[0] != '.':
+        args.to_ext = '.' + args.to_ext
+
     rename_files(args.folder, args.from_ext, args.to_ext, args.from_suffix, args.to_suffix, args.dry_run)
 
 if __name__ == "__main__":

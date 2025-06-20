@@ -3,6 +3,7 @@ from pathlib import Path
 from pprint import pprint
 import shutil
 from typing import List, Set, Union
+from tqdm import tqdm
 
 ALL_BOOK_IDS = [
     "GEN",
@@ -249,8 +250,6 @@ def rename_files(renames):
         
 
 # import machine.scripture.canon 
-root_folder = Path("E:/Work/Pilot_projects/projects")
-root_folder = Path("E:/Work/Importing/")
 root_folder = Path("E:/Work/Importing/Ross_Webb/Paratext/projects")
 
 #source_folders = [source_folder for source_folder in root_folder.iterdir()]
