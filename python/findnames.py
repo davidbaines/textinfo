@@ -155,16 +155,17 @@ def main():
 
     parser = argparse.ArgumentParser(description="Write file that contains only certain words from the input file. Maintain lines")
     parser.add_argument('input_file',  type=Path, help="Input file to read.")
-    parser.add_argument('input_config',  type=Path, help="Find the config.yaml file with list of files to read.")
+    parser.add_argument('--input_config',  type=Path, help="Find the config.yml file with list of files to read.")
     parser.add_argument('--output_file', type=Path, help="Output file for words found.")
     parser.add_argument('--report_file', type=Path, help="Specify where to write a summary file.", required = False)
     
     args = parser.parse_args()
     
     if args.input_config:
-    
-    
-    input_file = args.input_file
+        #todo
+        pass
+    else:
+        input_file = args.input_file
     
 #    print(input_file)  
 #    print(output_file)
